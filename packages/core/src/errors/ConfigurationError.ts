@@ -1,12 +1,12 @@
 // ============================================
-// packages/core/src/errors/ConflictError.ts
+// packages/core/src/errors/ConfigurationError.ts
 // ============================================
 
-export class ConflictError extends DomainError {
+export class ConfigurationError extends DomainError {
   constructor(
     message: string,
     details?: Record<string, unknown>
   ) {
-    super(message, 'CONFLICT', 409, details);
+    super(message, 'CONFIGURATION_ERROR', 500, details);
   }
 }
