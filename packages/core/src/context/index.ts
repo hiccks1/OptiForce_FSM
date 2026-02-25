@@ -1,5 +1,36 @@
+import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/context/index.ts
+// Context Layer Barrel Export
+// ============================================
+// VERSION: 1.0.0
 // ============================================
 
-export * from './RequestContext';
+export {
+  // Types
+  type RequestContext,
+  type CreateUserContextParams,
+  type CreateBettyContextParams,
+  type CreateSystemContextParams,
+  
+  // Factories
+  createUserContext,
+  createBettyContext,
+  createSystemContext,
+  
+  // Type guards
+  isHumanActor,
+  isAIActor,
+  isSystemActor,
+  hasUserId,
+  
+  // Assertions
+  assertHumanActor,
+  assertAIActor,
+} from './RequestContext';
+
+
+export const DRIFTY_FILE_CONTRACT = {
+  driftyVersion: "1.0.0",
+  layers: [DriftyLayer.L2_DOMAIN],
+} as const;

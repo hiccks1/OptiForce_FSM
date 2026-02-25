@@ -1,8 +1,9 @@
 // FSM/packages/core/src/context/ExecutionContext.ts
 
 import { UserRole } from "@prisma/client";
-import { CompanyConfig } from "../config/types";
+import { CompanyConfig, ResolvedPermissions, ResolvedWorkflows, SubscriptionSnapshot } from "../config/types";
 
+import { DriftyLayer } from "../../drifty/laws";
 export type ExecutionContext = Readonly<{
   requestId: string;
   companyId: string;
@@ -22,3 +23,9 @@ export type ExecutionContext = Readonly<{
 
   timestamp: Date;
 }>;
+
+
+export const DRIFTY_FILE_CONTRACT = {
+  driftyVersion: "1.0.0",
+  layers: [DriftyLayer.L2_DOMAIN],
+} as const;

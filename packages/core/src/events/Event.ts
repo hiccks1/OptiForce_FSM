@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 import type { RequestContext } from '../types';
 
+import { DriftyLayer } from "../../drifty/laws";
 // ============================================================
 // DOMAIN EVENT TYPES
 // ============================================================
@@ -82,7 +83,7 @@ export class EventEmitter {
   // ============================================================
 
   private async persistEvent(event: DomainEvent): Promise<void> {
-    await this.prisma.domainEvent.create({
+    await this.ctx.prisma.domainEvent.create({
       data: {
         id: event.id,
         type: event.type,
@@ -103,7 +104,7 @@ export class EventEmitter {
     const handlerId = handlerName || 'anonymous';
     
     try {
-      await this.prisma.aiActionLog.create({
+      await this.ctx.prisma.aiActionLog.create({
         data: {
           companyId: event.context.companyId,
           actorId: event.context.userId,
@@ -128,7 +129,7 @@ export class EventEmitter {
     const handlerId = handlerName || 'anonymous';
     
     try {
-      await this.prisma.aiActionLog.create({
+      await this.ctx.prisma.aiActionLog.create({
         data: {
           companyId: event.context.companyId,
           actorId: event.context.userId,
@@ -148,3 +149,9 @@ export class EventEmitter {
     }
   }
 }
+
+
+export const DRIFTY_FILE_CONTRACT = {
+  driftyVersion: "1.0.0",
+  layers: [DriftyLayer.L0_REPO],
+} as const;

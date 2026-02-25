@@ -3,7 +3,6 @@
 // 2025 STRICT SETTINGS
 // ============================================
 
-/*
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
@@ -42,4 +41,4 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
-*/
+

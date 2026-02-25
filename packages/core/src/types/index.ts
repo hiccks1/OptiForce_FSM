@@ -1,43 +1,38 @@
+import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/types/index.ts
-// Core Types - Foundation Layer
+// PURE TYPES ONLY - Zero runtime code
+// ============================================
+// LAYER: Foundation
+// IMPORTS FROM: @prisma/client only
+// EXPORTS TO: All layers
 // ============================================
 
-import type { UserRole, ActorType } from '@prisma/client';
+// Re-export Prisma enums (SINGLE SOURCE OF TRUTH)
+export { UserRole, ActorType } from '@fsm/db';
+export type { UserRole as UserRoleType, ActorType as ActorTypeType } from '@fsm/db';
 
 // ============================================
-// REQUEST CONTEXT (WHO + WHY)
+// BRANDED TYPES (Compile-time safety)
 // ============================================
 
-export interface RequestContext {
-  // Identity
-  readonly requestId: string;
-  readonly userId: string;
-  readonly companyId: string;
-  
-  // Actor type (critical for permissions)
-  readonly actorType: ActorType; // 'HUMAN' | 'AI' | 'SYSTEM'
-  
-  // Human-specific
-  readonly userRole?: UserRole;
-  readonly userEmail?: string;
-  
-  // AI-specific
-  readonly bettySessionId?: string;
-  readonly bettyConfidence?: number;
-  readonly bettyIntent?: string;
-  
-  // Audit trail
-  readonly timestamp: Date;
-  readonly ipAddress?: string;
-  readonly userAgent?: string;
-  
-  // Metadata
-  readonly metadata?: Record<string, unknown>;
-}
+declare const __brand: unique symbol;
+type Brand<T, B> = T & { readonly [__brand]: B };
+
+export type CompanyId = Brand<string, 'CompanyId'>;
+export type UserId = Brand<string, 'UserId'>;
+export type JobId = Brand<string, 'JobId'>;
+export type JobVisitId = Brand<string, 'JobVisitId'>;
+export type ContractId = Brand<string, 'ContractId'>;
+export type DocumentId = Brand<string, 'DocumentId'>;
+export type InvoiceId = Brand<string, 'InvoiceId'>;
+export type AccountId = Brand<string, 'AccountId'>;
+export type CustomerId = Brand<string, 'CustomerId'>;
+export type SignatureId = Brand<string, 'SignatureId'>;
+export type ZoneId = Brand<string, 'ZoneId'>;
 
 // ============================================
-// RESULT TYPE (Success/Failure Pattern)
+// RESULT TYPE (Functional error handling)
 // ============================================
 
 export type Success<T> = {
@@ -45,35 +40,97 @@ export type Success<T> = {
   readonly data: T;
 };
 
-export type Failure = {
+export type Failure<E = Error> = {
   readonly success: false;
-  readonly error: DomainError;
+  readonly error: E;
 };
 
-export type Result<T> = Success<T> | Failure;
+export type Result<T, E = Error> = Success<T> | Failure<E>;
 
-// Helper constructors
+// Pure functions (no side effects = acceptable in types layer)
 export const success = <T>(data: T): Success<T> => ({
   success: true,
   data,
 });
 
-export const failure = (error: DomainError): Failure => ({
+export const failure = <E = Error>(error: E): Failure<E> => ({
   success: false,
   error,
 });
+
+// Type guards
+export const isSuccess = <T, E>(result: Result<T, E>): result is Success<T> =>
+  result.success === true;
+
+export const isFailure = <T, E>(result: Result<T, E>): result is Failure<E> =>
+  result.success === false;
 
 // ============================================
 // ENTITY TYPES
 // ============================================
 
-export type EntityType = 'job' | 'document' | 'user';
+export type EntityType =
+  | 'job'
+  | 'jobVisit'
+  | 'contract'
+  | 'document'
+  | 'invoice'
+  | 'user'
+  | 'account'
+  | 'customer'
+  | 'signature'
+  | 'zone'
+  | 'vehicle'
+  | 'inventory'
+  | 'timeEntry'
+  | 'message'
+  | 'companyConfig';
 
-export type OperationType = 'create' | 'read' | 'update' | 'delete' | 'list';
+export type OperationType =
+  | 'create'
+  | 'read'
+  | 'update'
+  | 'delete'
+  | 'list'
+  | 'sign'
+  | 'void'
+  | 'issue'
+  | 'complete'
+  | 'cancel'
+  | 'schedule'
+  | 'assign'
+  | 'approve'
+  | 'reject';
 
 export interface EntityOperation {
   readonly entity: EntityType;
   readonly operation: OperationType;
+}
+
+// ============================================
+// BASE ENTITY SHAPE (all entities have these)
+// ============================================
+
+export interface BaseEntity {
+  readonly id: string;
+  readonly companyId: CompanyId;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+  readonly isDeleted: boolean;
+  readonly deletedAt: Date | null;
+}
+
+// ============================================
+// SOFT DELETE QUERY HELPERS
+// ============================================
+
+export interface SoftDeleteWhere {
+  readonly companyId: CompanyId;
+  readonly isDeleted: false;
+}
+
+export interface EntityWhere extends SoftDeleteWhere {
+  readonly id: string;
 }
 
 // ============================================
@@ -93,45 +150,126 @@ export interface PaginatedResult<T> {
   readonly page: number;
   readonly limit: number;
   readonly totalPages: number;
+  readonly hasNext: boolean;
+  readonly hasPrev: boolean;
 }
 
 // ============================================
-// AUDIT LOG ENTRY
+// AUDIT TYPES
 // ============================================
+
+export interface AIModelInfo {
+  readonly provider: 'anthropic' | 'openai' | 'local';
+  readonly model: string;
+  readonly version?: string;
+  readonly checksum?: string;
+}
+
+export interface AIAuditMetadata {
+  readonly sessionId: string;
+  readonly intent?: string;
+  readonly confidence: number;
+  readonly model: AIModelInfo;
+  readonly tokensUsed?: number;
+  readonly latencyMs?: number;
+}
 
 export interface AuditLogEntry {
-  readonly companyId: string;
-  readonly actorId: string | null;
-  readonly actorType: ActorType;
-  readonly action: string;
-  readonly input: Record<string, unknown>;
-  readonly outcome: Record<string, unknown>;
-  readonly allowed: boolean;
+  readonly id: string;
+  readonly companyId: CompanyId;
+  readonly entityType: EntityType;
+  readonly entityId: string;
+  readonly actorId: UserId | null;
+  readonly actorType: ActorTypeType;
+  readonly operation: OperationType;
+  readonly occurredAt: Date;
+  readonly beforeHash: string | null;
+  readonly afterHash: string;
+  readonly prevRecordHash: string | null;
+  readonly payload: unknown;
+  readonly ai?: AIAuditMetadata;
 }
 
 // ============================================
-// COMPANY CONFIG TYPES
+// JSONB VERSIONING
 // ============================================
 
-export interface CompanyConfigSchema {
-  readonly jobSchema: Record<string, unknown>;
-  readonly bettyConfig?: BettyConfig;
-  readonly workflows?: Record<string, unknown>;
-  readonly uiSettings?: Record<string, unknown>;
+export interface VersionedData {
+  readonly schemaVersion: number;
 }
 
-export interface BettyConfig {
-  readonly enabled: boolean;
-  readonly permissions: BettyPermissions;
-  readonly requiresApproval: boolean;
-  readonly maxJobValue?: number;
-  readonly approvalRules?: Record<string, unknown>;
+export interface AuditedData extends VersionedData {
+  readonly _audit?: ReadonlyArray<{
+    readonly id: string;
+    readonly at: string;
+    readonly actorId: string | null;
+    readonly actorType: ActorTypeType;
+    readonly reason: string;
+    readonly source?: string;
+    readonly notes?: string;
+  }>;
 }
 
-export interface BettyPermissions {
-  readonly canCreateJobs: boolean;
-  readonly canUpdateJobs: boolean;
-  readonly canDeleteJobs: boolean;
-  readonly canCreateDocuments: boolean;
-  readonly canDeleteDocuments: boolean;
+// ============================================
+// IMMUTABILITY STATUS
+// ============================================
+
+export type ImmutabilityReason =
+  | 'signed'
+  | 'completed'
+  | 'issued'
+  | 'paid'
+  | 'voided'
+  | 'archived';
+
+export interface ImmutabilityCheck {
+  readonly isImmutable: boolean;
+  readonly reason?: ImmutabilityReason;
+  readonly lockedAt?: Date;
+  readonly lockedBy?: string;
 }
+
+// ============================================
+// MONEY (Value Object Type)
+// ============================================
+
+export interface Money {
+  readonly amount: number;
+  readonly currency: 'USD' | 'CAD' | 'EUR' | 'GBP';
+}
+
+// ============================================
+// ADDRESS (Value Object Type)
+// ============================================
+
+export interface Address {
+  readonly street1: string;
+  readonly street2?: string;
+  readonly city: string;
+  readonly state: string;
+  readonly postalCode: string;
+  readonly country: string;
+  readonly latitude?: number;
+  readonly longitude?: number;
+}
+
+// ============================================
+// TIME WINDOW
+// ============================================
+
+export interface TimeWindow {
+  readonly start: string; // ISO datetime
+  readonly end: string;   // ISO datetime
+}
+
+export interface ArrivalWindow {
+  readonly label: string;         // "Morning", "Afternoon"
+  readonly start: string;         // "08:00"
+  readonly end: string;           // "12:00"
+}
+
+
+export const DRIFTY_FILE_CONTRACT = {
+  driftyVersion: "1.0.0",
+  layers: [DriftyLayer.L0_REPO],
+} as const;

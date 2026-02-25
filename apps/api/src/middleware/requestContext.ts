@@ -1,5 +1,11 @@
 // FSM/apps/api/src/middleware/requestContext.ts
 
+export const DRIFTY_FILE_CONTRACT = {
+  driftyVersion: "1.0.0",
+  layers: ["L3_INTEGRATION"],
+};
+
+
 import { Request, Response, NextFunction } from "express";
 import { createContext } from "@fsm/core/context/createContext";
 import { RequestContext } from "@fsm/core/context/RequestContext";
@@ -22,23 +28,25 @@ export function attachRequestContext(
   res: Response,
   next: NextFunction
 ): void {
-  // Extract from auth middleware (assumes auth runs first)
   const actorId = req.user?.id || "anonymous";
   const role = req.user?.role || UserRole.CSR;
 
-  // Extract request ID from header or generate
   const requestId =
     (req.headers["x-request-id"] as string) || crypto.randomUUID();
 
-  // Create context via core factory
+  const companyIdHeader = req.headers["x-company-id"];
+  const companyId =
+    (typeof companyIdHeader === "string" ? companyIdHeader : undefined) ||
+    (typeof req.query.companyId === "string" ? req.query.companyId : undefined);
+
   req.context = createContext({
     actorId,
     role,
     source: "api",
     requestId,
+    companyId,
   });
 
-  // Add request ID to response headers for tracing
   res.setHeader("X-Request-ID", req.context.requestId);
 
   next();

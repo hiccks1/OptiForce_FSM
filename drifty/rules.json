@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "productionRoots": [
+    "packages/core",
+    "packages/ai",
+    "packages/db",
+    "packages/schemas"
+  ],
+  "productionSubdir": "src",
+  "excludeGlobs": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.turbo/**",
+    "**/.next/**",
+    "**/coverage/**",
+    "**/generated/**",
+    "**/scripts/**",
+    "**/drifty/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.d.ts",
+    "**/*.md"
+  ],
+  "bannedTokens": [
+    "appointment",
+    "appointments",
+    "isDeleted"
+  ],
+  "schemaPrismaPath": "packages/db/prisma/schema.prisma",
+  "allowJobDataFullReplaceIn": [
+    "packages/core/src/services/JobService.ts",
+    "packages/core/src/services/ScheduleService.ts"
+  ],
+  "aiLogMustMention": [
+    "aiActionLog",
+    "AIActionLog",
+    "logAiAction",
+    "AiActionLog"
+  ]
+}

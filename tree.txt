@@ -1,180 +1,362 @@
+FSM$ tree -a -I "node_modules|.git|.turbo|.next|dist|build|coverage|.cache|.vite|out|tmp|*.log|*.lock|pnpm-lock.yaml" -L 20
 .
 ├── apps
-│   ├── api
-│   │   ├── src
-│   │   │   ├── config
-│   │   │   │   ├── env.ts
-│   │   │   │   └── index.ts
-│   │   │   ├── controllers
-│   │   │   ├── middleware
-│   │   │   │   ├── auth.ts
-│   │   │   │   ├── errorHandler.ts
-│   │   │   │   ├── rbac.ts
-│   │   │   │   └── requestContext.ts
-│   │   │   ├── routes
-│   │   │   │   ├── accounts.routes.ts
-│   │   │   │   ├── accounts.ts
-│   │   │   │   ├── auth.routes.ts
-│   │   │   │   ├── betty.routes.ts
-│   │   │   │   ├── customers.routes.ts
-│   │   │   │   ├── documents.routes.ts
-│   │   │   │   ├── index.ts
-│   │   │   │   └── jobs.routes.ts
-│   │   │   ├── services
-│   │   │   ├── app.ts
-│   │   │   ├── index.ts
-│   │   │   └── server.ts
-│   │   ├── package.json
-│   │   ├── README.md
-│   │   └── tsconfig.json
-│   ├── web
-│   │   ├── src
-│   │   │   ├── api
-│   │   │   ├── app
-│   │   │   ├── components
-│   │   │   ├── hooks
-│   │   │   ├── pages
-│   │   │   └── main.tsx
-│   │   ├── package.json
-│   │   ├── README.md
-│   │   ├── tsconfig.json
-│   │   └── vite.config.ts
-│   └── worker
-│       ├── src
-│       │   ├── processors
-│       │   │   ├── chunkDocument.ts
-│       │   │   ├── embedDocument.ts
-│       │   │   └── parsePdf.ts
-│       │   ├── queues
-│       │   │   ├── document.queue.ts
-│       │   │   ├── embedding.queue.ts
-│       │   │   └── notification.queue.ts
-│       │   └── index.ts
-│       ├── package.json
-│       ├── README.md
-│       └── tsconfig.json
-├── infra
-│   ├── docker
-│   │   ├── docker-compose.yml
-│   │   ├── Dockerfile.api
-│   │   └── Dockerfile.worker
-│   ├── minio
-│   │   └── buckets.txt
-│   ├── postgres
-│   │   └── init.sql
-│   └── redis
-│       └── redis.conf
-├── packages
-│   ├── ai
-│   │   ├── src
-│   │   │   ├── memory
-│   │   │   ├── prompts
-│   │   │   ├── retrievers
-│   │   │   ├── tools
-│   │   │   ├── betty.ts
-│   │   │   └── index.ts
-│   │   ├── package.json
-│   │   ├── README.md
-│   │   └── tsconfig.json
-│   ├── core
-│   │   ├── src
-│   │   │   ├── context
-│   │   │   │   ├── createContext.ts
-│   │   │   │   └── RequestContext.ts
-│   │   │   ├── domain
-│   │   │   │   ├── account
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── communication
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── customer
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── document
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── job
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── Account.ts
-│   │   │   │   ├── Jobs.ts
-│   │   │   │   ├── User.ts
-│   │   │   │   └── Visits.ts
-│   │   │   ├── errors
-│   │   │   │   ├── AuthorizationError.ts
-│   │   │   │   ├── ConflictError.ts
-│   │   │   │   └── DomainError.ts
-│   │   │   ├── events
-│   │   │   │   └── Event.ts
-│   │   │   ├── permissions
-│   │   │   ├── services
-│   │   │   │   ├── accountService.ts
-│   │   │   │   ├── jobService.ts
-│   │   │   │   └── scheduleService.ts
-│   │   │   └── index.ts
-│   │   ├── package.json
-│   │   ├── README.md
-│   │   └── tsconfig.json
-│   ├── db
-│   │   ├── prisma
-│   │   │   ├── migrations
-│   │   │   ├── schema.prisma
-│   │   │   ├── schema.prisma.bak
-│   │   │   ├── schema.prisma.bak.bak
-│   │   │   └── seed.ts
-│   │   ├── src
-│   │   │   ├── client.ts
-│   │   │   ├── index.ts
-│   │   │   └── transactions.ts
-│   │   ├── package.json
-│   │   ├── README.md
-│   │   └── tsconfig.json
-│   ├── logger
-│   │   ├── src
-│   │   │   ├── index.ts
-│   │   │   └── logger.ts
-│   │   ├── package.json
-│   │   ├── README.md
-│   │   └── tsconfig.json
-│   ├── queue
-│   │   ├── src
-│   │   │   ├── client.ts
-│   │   │   ├── index.ts
-│   │   │   ├── payloads.ts
-│   │   │   └── queues.ts
-│   │   ├── package.json
-│   │   ├── README.md
-│   │   └── tsconfig.json
-│   ├── schemas
-│   │   ├── src
-│   │   │   ├── document.schema.ts
-│   │   │   ├── index.ts
-│   │   │   └── job.schema.ts
-│   │   ├── package.json
-│   │   ├── README.md
-│   │   └── tsconfig.json
-│   └── storage
-│       ├── src
-│       │   ├── buckets.ts
-│       │   ├── client.ts
-│       │   ├── index.ts
-│       │   └── paths.ts
-│       ├── package.json
-│       ├── README.md
-│       └── tsconfig.json
-├── scripts
-│   ├── migrate
-│   │   └── run.sh
-│   ├── refactor
-│   │   └── update-imports.sh
-│   ├── seed
-│   │   └── run.sh
-│   └── setup
-│       └── init.sh
+│   ├── api
+│   │   ├── entrypoint.sh
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── app.ts
+│   │   │   ├── config
+│   │   │   │   ├── env.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── controllers
+│   │   │   │   ├── appointments.ts
+│   │   │   │   ├── auth.ts
+│   │   │   │   ├── customers.ts
+│   │   │   │   └── jobs.ts
+│   │   │   ├── index.ts
+│   │   │   ├── middleware
+│   │   │   │   ├── attachCtx.ts
+│   │   │   │   ├── auth.ts
+│   │   │   │   ├── errorHandler.ts
+│   │   │   │   ├── rbac.ts
+│   │   │   │   └── requestContext.ts
+│   │   │   ├── routes
+│   │   │   │   ├── accounts.routes.ts
+│   │   │   │   ├── appointments.routes.ts
+│   │   │   │   ├── auth.routes.ts
+│   │   │   │   ├── betty.routes.ts
+│   │   │   │   ├── customers.routes.ts
+│   │   │   │   ├── documents.routes.ts
+│   │   │   │   ├── employees.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── jobs.routes.ts
+│   │   │   │   ├── jobs.update,ts
+│   │   │   │   └── portal.ts
+│   │   │   ├── server.ts
+│   │   │   └── services
+│   │   └── tsconfig.json
+│   ├── web
+│   │   ├── .env
+│   │   ├── index.html
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── api
+│   │   │   │   └── client.ts
+│   │   │   ├── app
+│   │   │   │   ├── CustomerDashboard.tsx
+│   │   │   │   ├── LoginPage.tsx
+│   │   │   │   └── ResetPasswordPage.tsx
+│   │   │   ├── App.tsx
+│   │   │   ├── components
+│   │   │   │   ├── AppointmentForm.tsx
+│   │   │   │   ├── BettyButton.tsx
+│   │   │   │   ├── CalendarView.tsx
+│   │   │   │   ├── CustomerForm.tsx
+│   │   │   │   └── ui.tsx
+│   │   │   ├── hooks
+│   │   │   ├── main.tsx
+│   │   │   ├── pages
+│   │   │   │   ├── Calendar.tsx
+│   │   │   │   ├── Dashboard.tsx
+│   │   │   │   ├── Login.tsx
+│   │   │   │   ├── NewAppointment.tsx
+│   │   │   │   ├── NewCustomer.tsx
+│   │   │   │   └── Portal.tsx
+│   │   │   └── types.ts
+│   │   ├── tsconfig.json
+│   │   └── vite.config.ts
+│   └── worker
+│       ├── package.json
+│       ├── README.md
+│       ├── src
+│       │   ├── index.ts
+│       │   ├── processors
+│       │   │   ├── chunkDocument.ts
+│       │   │   ├── embedDocument.ts
+│       │   │   └── parsePdf.ts
+│       │   └── queues
+│       │       ├── document.queue.ts
+│       │       ├── embedding.queue.ts
+│       │       └── notification.queue.ts
+│       └── tsconfig.json
+├── ARCHITECTURAL_LAWS.md
+├── ARCHITECTURE_CONTRACT.md
+├── BUILDING_INSTRUCTIONS.md
+├── BUILD_SEQUENCE.md
 ├── deploy-all-files.sh
+├── drifty
+│   ├── DRIFTY-LAWS.md
+│   ├── laws.ts
+│   ├── README.md
+│   └── validate.ts
+├── .env
+├── files-list.md
+├── FORBIDDEN_PATTERNS.md
+├── full-deep-tree.txt
+├── .gitignore
+├── infra
+│   ├── docker
+│   │   ├── docker-compose.yaml
+│   │   ├── Dockerfile.api
+│   │   ├── Dockerfile.worker
+│   │   ├── env.postgres
+│   │   └── scripts
+│   │       ├── prisma-generate.sh
+│   │       ├── prisma-migrate.sh
+│   │       └── wait-for-postgres.sh
+│   ├── minio
+│   │   └── buckets.txt
+│   ├── postgres
+│   │   └── init.sql
+│   └── redis
+│       └── redis.conf
 ├── LICENSE
+├── nonempty-files.txt
+├── .npmrc
 ├── package.json
-├── pnpm-lock.yaml
+├── packages
+│   ├── ai
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── BettyFloatingWidget.js
+│   │   │   ├── BettyFloatingWidget.tsx
+│   │   │   ├── betty.js
+│   │   │   ├── betty.ts
+│   │   │   ├── chat.js
+│   │   │   ├── chat.ts
+│   │   │   ├── index.js
+│   │   │   ├── index.ts
+│   │   │   ├── memory
+│   │   │   │   ├── BaseMemory.js
+│   │   │   │   ├── BaseMemory.ts
+│   │   │   │   ├── index.js
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── types.js
+│   │   │   │   └── types.ts
+│   │   │   ├── prompts
+│   │   │   │   ├── index.js
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── types.js
+│   │   │   │   └── types.ts
+│   │   │   ├── retrievers
+│   │   │   │   ├── AccountContextRetriever.js
+│   │   │   │   ├── AccountContextRetriever.ts
+│   │   │   │   ├── BaseRetriever.js
+│   │   │   │   ├── BaseRetriever.ts
+│   │   │   │   ├── DocumentRetriever.js
+│   │   │   │   ├── DocumentRetriever.ts
+│   │   │   │   ├── index.js
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── ScheduleRetriever.js
+│   │   │   │   ├── ScheduleRetriever.ts
+│   │   │   │   ├── types.js
+│   │   │   │   └── types.ts
+│   │   │   ├── tools
+│   │   │   │   ├── BaseTools.js
+│   │   │   │   ├── BaseTools.ts
+│   │   │   │   ├── index.js
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── types.js
+│   │   │   │   └── types.ts
+│   │   │   ├── train.js
+│   │   │   └── train.ts
+│   │   └── tsconfig.json
+│   ├── core
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── audit
+│   │   │   │   ├── hash.ts
+│   │   │   │   └── writeAuditLog.ts
+│   │   │   ├── companySchema.config
+│   │   │   ├── config
+│   │   │   │   ├── companySchema.ts
+│   │   │   │   ├── features.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── payload.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── context
+│   │   │   │   ├── createContext.ts
+│   │   │   │   ├── ExecutionContext.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── RequestContext.ts
+│   │   │   ├── domain
+│   │   │   │   ├── account
+│   │   │   │   │   ├── Account.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── communication
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── compliance
+│   │   │   │   │   ├── C2PAManifest.ts
+│   │   │   │   │   ├── ChainOfCustody.ts
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── LicenseValidation.ts
+│   │   │   │   │   └── TestEquipment.ts
+│   │   │   │   ├── customer
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── document
+│   │   │   │   │   ├── documents.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── job
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── JobData.ts
+│   │   │   │   │   ├── JobRules.ts
+│   │   │   │   │   └── JobStatus.ts
+│   │   │   │   ├── user
+│   │   │   │   │   └── User.ts
+│   │   │   │   └── visit
+│   │   │   │       ├── index.ts
+│   │   │   │       ├── VisitCompletion.ts
+│   │   │   │       ├── VisitData.ts
+│   │   │   │       ├── VisitRules.ts
+│   │   │   │       └── VisitStatus.ts
+│   │   │   ├── errors
+│   │   │   │   ├── authorization.ts
+│   │   │   │   ├── base.ts
+│   │   │   │   ├── configuration.ts
+│   │   │   │   ├── conflict.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── notFound.ts
+│   │   │   │   └── validation.ts
+│   │   │   ├── events
+│   │   │   │   └── Event.ts
+│   │   │   ├── index.ts
+│   │   │   ├── payloads
+│   │   │   ├── permissions
+│   │   │   ├── schemas
+│   │   │   │   └── customer-portal.schema.ts
+│   │   │   ├── services
+│   │   │   │   ├── AuthService.ts
+│   │   │   │   ├── BaseEntityService.ts
+│   │   │   │   ├── ChangeOrderService.ts
+│   │   │   │   ├── ContractService.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── InvoiceService.ts
+│   │   │   │   ├── JobService.ts
+│   │   │   │   └── VisitService.ts
+│   │   │   └── types
+│   │   │       └── index.ts
+│   │   ├── tsconfig.json
+│   │   └── tsconfig.tsbuildinfo
+│   ├── db
+│   │   ├── check-tables.ts
+│   │   ├── .env
+│   │   ├── index.ts
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   ├── prisma
+│   │   │   ├── README.md
+│   │   │   ├── schema.prisma
+│   │   │   └── seed.ts
+│   │   ├── prisma.config.ts
+│   │   ├── README.md
+│   │   ├── scripts
+│   │   │   └── test-database.ts
+│   │   ├── src
+│   │   │   ├── client.ts
+│   │   │   ├── .env
+│   │   │   ├── generated
+│   │   │   │   └── prisma
+│   │   │   │       ├── browser.ts
+│   │   │   │       ├── client.ts
+│   │   │   │       ├── commonInputTypes.ts
+│   │   │   │       ├── enums.ts
+│   │   │   │       ├── internal
+│   │   │   │       │   ├── class.ts
+│   │   │   │       │   ├── prismaNamespaceBrowser.ts
+│   │   │   │       │   └── prismaNamespace.ts
+│   │   │   │       ├── models
+│   │   │   │       │   ├── AIActionLog.ts
+│   │   │   │       │   ├── AuditLog.ts
+│   │   │   │       │   ├── C2PAManifest.ts
+│   │   │   │       │   ├── CompanyConfig.ts
+│   │   │   │       │   ├── Company.ts
+│   │   │   │       │   ├── Contract.ts
+│   │   │   │       │   ├── Document.ts
+│   │   │   │       │   ├── HotPathColumn.ts
+│   │   │   │       │   ├── Job.ts
+│   │   │   │       │   └── User.ts
+│   │   │   │       └── models.ts
+│   │   │   ├── index.ts
+│   │   │   ├── prisma.ts
+│   │   │   └── transactions.ts
+│   │   └── tsconfig.json
+│   ├── logger
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── index.js
+│   │   │   ├── index.ts
+│   │   │   ├── logger.js
+│   │   │   └── logger.ts
+│   │   └── tsconfig.json
+│   ├── queue
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── client.js
+│   │   │   ├── client.ts
+│   │   │   ├── index.js
+│   │   │   ├── index.ts
+│   │   │   ├── payloads.js
+│   │   │   ├── payloads.ts
+│   │   │   ├── queues.js
+│   │   │   └── queues.ts
+│   │   └── tsconfig.json
+│   ├── schemas
+│   │   ├── index.js
+│   │   ├── index.ts
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── company.schema.js
+│   │   │   ├── company.schema.ts
+│   │   │   ├── document.schema.js
+│   │   │   ├── document.schema.ts
+│   │   │   ├── index.js
+│   │   │   ├── index.ts
+│   │   │   ├── job.schema.js
+│   │   │   └── job.schema.ts
+│   │   └── tsconfig.json
+│   └── storage
+│       ├── package.json
+│       ├── README.md
+│       ├── src
+│       │   ├── buckets.js
+│       │   ├── buckets.ts
+│       │   ├── client.js
+│       │   ├── client.ts
+│       │   ├── index.js
+│       │   ├── index.ts
+│       │   ├── paths.js
+│       │   └── paths.ts
+│       └── tsconfig.json
 ├── pnpm-workspace.yaml
 ├── README.md
+├── .RECORDS-IMMUTABILITY.md.swp
+├── scripts
+│   ├── backup-git.sh
+│   ├── drifty-validate.ts
+│   ├── laws.ts
+│   ├── migrate
+│   ├── nuke.sh
+│   ├── refactor
+│   │   └── update-imports.sh
+│   ├── run.sh
+│   ├── seed
+│   │   ├── run.sh
+│   │   └── seed.ts
+│   ├── setup
+│   │   └── init.sh
+│   └── validate.ts
 ├── tree.txt
 ├── tsconfig.base.json
+├── tsconfig.json
 └── turbo.json
 
-62 directories, 116 files
+76 directories, 283 files

@@ -1,3 +1,8 @@
+export const DRIFTY_FILE_CONTRACT = {
+  driftyVersion: "1.0.0",
+  layers: ["L3_INTEGRATION"],
+};
+
 import React, { useState, useEffect } from "react";
 import api from "../services/api";
 import StepCard from "../components/StepCard";

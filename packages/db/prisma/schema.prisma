@@ -1,15 +1,16 @@
 // ============================================
-// FINAL PRISMA SCHEMA v5.3
-// With Generated Columns Support
+// /FSM/packages/db/prisma/schema.prisma
+// OPTIFORCE / FSM — Prisma Schema
+// Prisma v7 + PostgreSQL + C2PA Compliance
 // ============================================
-
-generator client {
-  provider = "prisma-client-js"
-}
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 // ============================================
@@ -32,26 +33,40 @@ enum ActorType {
   AI
 }
 
+enum DocumentStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
 // ============================================
 // COMPANY (TENANT ROOT)
 // ============================================
 
 model Company {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   name      String
-  subdomain String?  @unique
-  
-  users     User[]
-  jobs      Job[]
-  documents Document[]
-  configs   CompanyConfig[]
-  
-  isDeleted Boolean  @default(false)
+  subdomain String? @unique
+
+  // Relations
+  users        User[]
+  jobs         Job[]
+  contracts    Contract[]
+  documents    Document[]
+  configs      CompanyConfig[]
+  auditLogs    AuditLog[]
+  aiActionLogs AIActionLog[]
+
+  // Soft delete with accountability (C2PA compliance)
   deletedAt DateTime?
+  deletedBy String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@index([isDeleted])
+
+  @@index([deletedAt])
   @@map("companies")
 }
 
@@ -60,32 +75,23 @@ model Company {
 // ============================================
 
 model CompanyConfig {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
-  version   Int
-  schema    Json     // Zod-validated runtime config
-  /*
-  Example structure:
-  {
-    "jobSchema": { ... },
-    "bettyConfig": { ... },
-    "hotPaths": {
-      "job": ["status", "accountId", "estimatedValue"],
-      "document": ["type", "uploadedBy"]
-    },
-    "workflows": { ... },
-    "uiSettings": { ... }
-  }
-  */
-  
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  version Int
+  schema  Json @db.JsonB
+
+  // Chain of custody - content hash for integrity
+  contentHash String?
+
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   createdBy String?
-  
+
   @@unique([companyId, version])
   @@index([companyId, isActive])
+  @@index([schema], type: Gin)
   @@map("company_configs")
 }
 
@@ -94,192 +100,270 @@ model CompanyConfig {
 // ============================================
 
 model User {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
-  email     String   @unique
-  name      String?
-  role      UserRole
-  
-  isDeleted Boolean  @default(false)
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  email String   @unique
+  name  String?
+  role  UserRole
+
+  // Soft delete with accountability
   deletedAt DateTime?
+  deletedBy String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
+  @@index([companyId, deletedAt])
   @@index([companyId, role])
-  @@index([isDeleted])
   @@map("users")
 }
 
 // ============================================
-// JOB (CORE ENTITY)
+// JOB (CORE ENTITY - HEAVY JSONB)
 // ============================================
 
 model Job {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
-  // ========================================
-  // JSONB DATA (ALL JOB DATA)
-  // ========================================
-  data      Json
-  /*
-  Complete job data structure:
-  {
-    "status": "SCHEDULED",
-    "accountId": "acc_123",
-    "estimatedValue": 1500.00,
-    "scheduledDate": "2025-01-15T09:00:00Z",
-    "technicianId": "user_456",
-    "title": "AC Repair",
-    "description": "Unit not cooling",
-    "priority": "HIGH",
-    "address": {
-      "street": "123 Main St",
-      "city": "Austin",
-      "state": "TX",
-      "zip": "78701"
-    },
-    "equipmentType": "Central AC",
-    "customFields": {
-      "preferredArrivalTime": "morning",
-      "petOnPremises": true
-    }
-  }
-  */
-  
-  // ========================================
-  // NOTE: Generated columns will be added
-  // dynamically per company via SQL:
-  //
-  // ALTER TABLE jobs 
-  // ADD COLUMN status TEXT 
-  // GENERATED ALWAYS AS (data->>'status') STORED;
-  //
-  // These are NOT in Prisma schema because:
-  // 1. They're created at runtime per company
-  // 2. Different companies have different columns
-  // 3. Prisma doesn't need to know about them
-  // ========================================
-  
-  // Standard fields
-  isDeleted Boolean  @default(false)
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  data Json @db.JsonB
+
+  // Chain of custody - content integrity
+  contentHash  String? // SHA-256 hash of current data state
+  previousHash String? // Hash of previous version (chain link)
+
+  // Soft delete with accountability
   deletedAt DateTime?
+  deletedBy String?
+
   createdAt DateTime @default(now())
+  createdBy String?
   updatedAt DateTime @updatedAt
-  
-  @@index([companyId])
-  @@index([isDeleted])
+  updatedBy String?
+
+  @@index([companyId, deletedAt])
   @@index([createdAt])
+  @@index([data], type: Gin)
   @@map("jobs")
 }
 
 // ============================================
-// DOCUMENT (MINIO-BACKED)
+// CONTRACT (LEGAL BOUNDARY - HEAVY JSONB)
+// ============================================
+
+model Contract {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  data Json @db.JsonB
+
+  // Chain of custody - CRITICAL for legal documents
+  contentHash    String? // SHA-256 hash of contract data
+  previousHash   String? // Link to previous version hash
+  c2paManifestId String? // Reference to C2PA manifest if stored separately
+
+  // Soft delete with accountability
+  deletedAt DateTime?
+  deletedBy String?
+
+  createdAt DateTime @default(now())
+  createdBy String?
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@index([companyId, deletedAt])
+  @@index([createdAt])
+  @@index([data], type: Gin)
+  @@map("contracts")
+}
+
+// ============================================
+// DOCUMENT (MINIO-BACKED - C2PA COMPLIANCE)
 // ============================================
 
 model Document {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
-  // ========================================
-  // JSONB METADATA (ALL DOCUMENT DATA)
-  // ========================================
-  metadata  Json
-  /*
-  Document metadata structure:
-  {
-    "type": "INVOICE",
-    "minioKey": "company_abc/jobs/job_123/invoice.pdf",
-    "minioHash": "abc123def456",
-    "originalName": "invoice.pdf",
-    "mimeType": "application/pdf",
-    "size": 1048576,
-    "uploadedBy": "user_789",
-    "uploadedAt": "2025-01-03T10:30:00Z",
-    "relatedTo": {
-      "entityType": "Job",
-      "entityId": "job_123"
-    },
-    "processed": false,
-    "tags": ["urgent", "customer-signed"]
-  }
-  */
-  
-  // ========================================
-  // NOTE: Generated columns like 'type',
-  // 'uploadedBy' can be added dynamically
-  // per company needs via SQL
-  // ========================================
-  
-  // Standard fields
-  isDeleted Boolean  @default(false)
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Document metadata
+  title    String?
+  status   DocumentStatus @default(DRAFT)
+  metadata Json           @db.JsonB
+
+  // File storage reference (MinIO)
+  storagePath String?
+  storageUrl  String?
+  mimeType    String?
+  fileSize    Int?
+
+  // C2PA Chain of custody fields
+  contentHash    String? // SHA-256 hash of file content
+  previousHash   String? // Link to previous version hash (chain)
+  c2paManifestId String? // C2PA manifest reference for provenance
+
+  // Soft delete with accountability
   deletedAt DateTime?
+  deletedBy String?
+
   createdAt DateTime @default(now())
-  
-  @@index([companyId])
-  @@index([isDeleted])
+  createdBy String?
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@index([companyId, deletedAt])
+  @@index([companyId, status])
   @@index([createdAt])
+  @@index([metadata], type: Gin)
   @@map("documents")
 }
 
 // ============================================
-// AI ACTION AUDIT LOG
+// DOMAIN AUDIT LOG (IMMUTABLE CHAIN OF CUSTODY)
 // ============================================
+// This is your PRIMARY compliance artifact for
+// EU AI Act, C2PA, and general audit requirements
+// Records should NEVER be deleted or modified
+
+model AuditLog {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // What changed
+  entityType String // "Job", "Contract", "Document", etc.
+  entityId   String
+  action     String // "CREATE", "UPDATE", "DELETE", "VIEW", "EXPORT"
+
+  // Who made the change
+  actorId   String?
+  actorType String  @default("HUMAN") // "HUMAN", "SYSTEM", "AI"
+
+  // When it happened (immutable timestamp)
+  occurredAt DateTime @default(now())
+
+  // Chain of custody hashes
+  beforeHash     String? // Hash of entity BEFORE change (null for CREATE)
+  afterHash      String // Hash of entity AFTER change
+  prevRecordHash String? // Hash of PREVIOUS audit record (chain link)
+
+  // Full payload for reconstruction
+  beforeState Json? @db.JsonB // State before change
+  afterState  Json? @db.JsonB // State after change
+  payload     Json  @db.JsonB // Additional context/metadata
+
+  // Request context for forensics
+  ipAddress String?
+  userAgent String?
+  requestId String?
+
+  @@index([companyId, entityType, entityId])
+  @@index([companyId, occurredAt])
+  @@index([companyId, actorId])
+  @@index([payload], type: Gin)
+  @@map("audit_logs")
+}
+
+// ============================================
+// AI ACTION AUDIT LOG (EU AI ACT COMPLIANCE)
+// ============================================
+// Separate from domain audit for AI-specific actions
+// Required for EU AI Act Article 12 (Logging)
 
 model AIActionLog {
-  id        String   @id @default(cuid())
+  id        String @id @default(cuid())
   companyId String
-  
-  actorId   String?
+
+  // Actor identification
+  actorId   String? // User who triggered the AI action
   actorType ActorType
-  
-  action    String   // "job.create", "document.upload", etc.
-  input     Json     // What was requested
-  outcome   Json     // What happened
-  allowed   Boolean  // Was it permitted
-  
+
+  // Action details
+  action  String // "GENERATE", "CLASSIFY", "RECOMMEND", etc.
+  model   String? // AI model identifier
+  version String? // Model version
+
+  // Input/Output for reproducibility
+  input   Json @db.JsonB
+  outcome Json @db.JsonB
+
+  // Decision audit
+  allowed    Boolean
+  reason     String? // Why allowed/denied
+  confidence Float? // Model confidence score
+
+  // Chain integrity
+  contentHash String? // Hash of input + outcome for verification
+
   createdAt DateTime @default(now())
-  
+  company   Company  @relation(fields: [companyId], references: [id])
+
   @@index([companyId, actorType])
   @@index([companyId, createdAt])
   @@index([actorType, createdAt])
+  @@index([input], type: Gin)
+  @@index([outcome], type: Gin)
   @@map("ai_action_logs")
 }
 
 // ============================================
-// HOT PATH METADATA (Track which columns exist)
+// C2PA MANIFEST STORE (OPTIONAL)
+// ============================================
+// Store C2PA manifests separately if needed
+// for document provenance verification
+
+model C2PAManifest {
+  id        String @id @default(cuid())
+  companyId String
+
+  // Reference to source entity
+  entityType String // "Document", "Contract", etc.
+  entityId   String
+
+  // Manifest data
+  manifestJson Json      @db.JsonB // Full C2PA manifest
+  signature    String? // Cryptographic signature
+  signedAt     DateTime?
+  signedBy     String? // Certificate identifier
+
+  // Verification status
+  isVerified Boolean   @default(false)
+  verifiedAt DateTime?
+  verifiedBy String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([entityType, entityId])
+  @@index([companyId, entityType])
+  @@index([manifestJson], type: Gin)
+  @@map("c2pa_manifests")
+}
+
+// ============================================
+// HOT PATH METADATA
 // ============================================
 
 model HotPathColumn {
-  id        String   @id @default(cuid())
+  id        String @id @default(cuid())
   companyId String
-  
-  tableName String   // "jobs", "documents"
-  columnName String  // "status", "estimated_value"
-  jsonPath  String   // "status", "estimatedValue"
-  dataType  String   // "text", "numeric", "timestamptz"
-  
-  isIndexed Boolean  @default(false)
+
+  tableName  String
+  columnName String
+  jsonPath   String
+  dataType   String
+
+  isIndexed Boolean @default(false)
   indexName String?
-  
-  usage     Json?    // Query usage statistics
-  /*
-  {
-    "queriesPerDay": 1500,
-    "avgQueryTime": 12,
-    "lastQueried": "2025-01-03T10:30:00Z"
-  }
-  */
-  
+  usage     Json?   @db.JsonB
+
   createdAt DateTime @default(now())
   createdBy String?
-  
+
   @@unique([companyId, tableName, columnName])
   @@index([companyId, tableName])
   @@map("hot_path_columns")
 }
-
