@@ -24,7 +24,6 @@ import { AuthorizationError } from './authorization';
 import { ConflictError } from './conflict';
 import { ConfigurationError } from './configuration';
 
-import { DriftyLayer } from "../../drifty/laws";
 export const isDomainError = (error: unknown): error is DomainError =>
   error instanceof DomainError;
 
@@ -58,7 +57,3 @@ export const ErrorCodes = {
 export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes];
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;

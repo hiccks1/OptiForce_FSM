@@ -3,10 +3,9 @@
     "target": "ES2022",
     "module": "ESNext",
     "lib": ["ES2022"],
-    "baseUrl": ".",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "allowJs": true,
+    "allowJs": false,
     "checkJs": false,
     "strict": true,
     "noUnusedLocals": true,
@@ -20,23 +19,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "incremental": true,
-    "paths": {
-      "@fsm/core": ["./packages/core/src"],
-      "@fsm/core/*": ["./packages/core/src/*"],
-      "@fsm/db": ["./packages/db/src"],
-      "@fsm/db/*": ["./packages/db/src/*"],
-      "@fsm/schemas": ["./packages/schemas/src"],
-      "@fsm/schemas/*": ["./packages/schemas/src/*"],
-      "@fsm/queue": ["./packages/queue/src"],
-      "@fsm/queue/*": ["./packages/queue/src/*"],
-      "@fsm/storage": ["./packages/storage/src"],
-      "@fsm/storage/*": ["./packages/storage/src/*"],
-      "@fsm/ai": ["./packages/ai/src"],
-      "@fsm/ai/*": ["./packages/ai/src/*"],
-      "@fsm/logger": ["./packages/logger/src"],
-      "@fsm/logger/*": ["./packages/logger/src/*"]
-    }
+    "incremental": true
   },
-  "exclude": ["node_modules", "dist", "build", ".next"]
+  "exclude": ["**/node_modules", "**/dist", "**/build", "**/.next"]
 }

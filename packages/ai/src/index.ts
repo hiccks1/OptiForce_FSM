@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/ai/src/index.ts
 // ============================================================
 // AI Package Public API

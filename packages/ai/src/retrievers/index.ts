@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/ai/src/retrievers/index.ts
 // Retriever registry and access layer
 

@@ -1,7 +1,6 @@
 // packages/schemas/src/company.schema.ts
 import { z } from 'zod';
 
-import { DriftyLayer } from "../../drifty/laws";
 const Industry = z.enum(['HVAC', 'Plumbing', 'Electrical', 'Roofing', 'General', 'Other']);
 const Currency = z.enum(['USD', 'CAD', 'EUR', 'GBP']);
 
@@ -202,7 +201,3 @@ export const CompanyConfigPayloadSchema = z.object({
 export type CompanyConfigPayloadZod = z.infer<typeof CompanyConfigPayloadSchema>;
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

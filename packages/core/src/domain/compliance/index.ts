@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/domain/compliance/index.ts
 // Compliance Domain Barrel Export
@@ -62,7 +61,3 @@ export {
 } from './C2PAManifest';
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

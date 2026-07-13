@@ -39,7 +39,6 @@ import { NotFoundError, DomainError, ConflictError, ValidationError } from '@fsm
 // Zod for runtime validation at service boundaries
 import type { ZodSchema, ZodError } from 'zod';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // RUNTIME VERSION (for debugging/logging/health checks)
 // ============================================
@@ -974,7 +973,3 @@ export abstract class BaseEntityService<T extends BaseEntity>
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

@@ -9,7 +9,6 @@
 import type { VisitStatus } from './VisitStatus';
 import type { Address, TimeWindow, ArrivalWindow, Money } from '../../types';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // SCHEMA VERSION
 // ============================================
@@ -377,7 +376,3 @@ export function createVisitData(
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

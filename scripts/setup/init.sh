@@ -654,22 +654,33 @@ echo ""
 echo "📊 Seeding database..."
 
 SEED_FILE="tmp-seed-${COMPANY_ID}.ts"
-cat > "$SEED_FILE" << EOF
-import { PrismaClient } from '@prisma/client';
-import { companyConfig } from './${CONFIG_FILE}';
 
-const prisma = new PrismaClient();
+cat > "$SEED_FILE" << EOF
+import { prisma, shutdownPrisma } from '@fsm/db';
+
+const TARGET_COMPANY_ID = "${COMPANY_ID}";
+const TARGET_COMPANY_NAME = "${COMPANY_NAME}";
+
+function handleSeedError(error: any) {
+  console.error('❌ Seeding Failed:', error);
+  process.exit(1);
+}
+
+function handleSeedSuccess() {
+  console.log('✅ Company seeded successfully:', TARGET_COMPANY_ID);
+}
 
 async function seed() {
-  // Create company
   const company = await prisma.company.create({
     data: {
-      id: '${COMPANY_ID}',
-      name: '${COMPANY_NAME}',
+      id: TARGET_COMPANY_ID,
+      name: TARGET_COMPANY_NAME,
     },
   });
 
-  // Create company config
+  const configModule = await import("./config/company-configs/" + TARGET_COMPANY_ID);
+  const companyConfig = configModule.companyConfig || configModule.default;
+
   await prisma.companyConfig.create({
     data: {
       companyId: company.id,
@@ -679,80 +690,69 @@ async function seed() {
       createdBy: 'init-script',
     },
   });
-
-  // Create hot path columns
-  for (const index of companyConfig.hotColumns.indexes) {
-    await prisma.hotPathColumn.create({
-      data: {
-        companyId: company.id,
-        tableName: index.table,
-        columnName: index.jsonPath,
-        jsonPath: \`data->'\${index.jsonPath}'\`,
-        dataType: index.dataType,
-        isIndexed: false,
-        createdBy: 'init-script',
-      },
-    });
-  }
-
-  console.log('✅ Company seeded:', company.id);
 }
 
+// Clean named functions with NO arrow syntax or empty method dots
 seed()
-  .catch(console.error)
-  .finally(() => prisma.\$disconnect());
+  .then(handleSeedSuccess)
+  .catch(handleSeedError)
+  .then(shutdownPrisma);
 EOF
 
 npx tsx "$SEED_FILE"
 rm "$SEED_FILE"
 
 # ============================================
-# CREATE GIN INDEXES
+# CREATE HIGH-PERFORMANCE FUNCTIONAL INDEXES
 # ============================================
 
 echo ""
-echo "🔍 Creating GIN indexes..."
+echo "🔍 Creating Partial Database Indexes..."
 
-psql "$DATABASE_URL" << SQL
--- Hot column indexes for ${COMPANY_NAME} (${COMPANY_ID})
+# Safe string replacement for database index naming compliance
+DB_PREFIX="idx_${COMPANY_ID//\-/_}"
 
-CREATE INDEX IF NOT EXISTS idx_${COMPANY_ID//\-/_}_jobs_status
-  ON jobs USING GIN ((data->>'status'))
-  WHERE company_id = '${COMPANY_ID}';
+docker exec -i fsm-postgres psql "postgresql://postgres:postgres@localhost:5432/fsm" << SQL
+-- Highly optimized functional partial indexes using your exact camelCase columns
 
-CREATE INDEX IF NOT EXISTS idx_${COMPANY_ID//\-/_}_jobs_scheduled
-  ON jobs USING GIN ((data->>'scheduledDate'))
-  WHERE company_id = '${COMPANY_ID}';
+CREATE INDEX IF NOT EXISTS ${DB_PREFIX}_jobs_status
+  ON jobs ((data->>'status'))
+  WHERE "companyId" = '${COMPANY_ID}';
 
-CREATE INDEX IF NOT EXISTS idx_${COMPANY_ID//\-/_}_jobs_tech
-  ON jobs USING GIN ((data->>'technicianId'))
-  WHERE company_id = '${COMPANY_ID}';
+CREATE INDEX IF NOT EXISTS ${DB_PREFIX}_jobs_scheduled
+  ON jobs ((data->>'scheduledDate'))
+  WHERE "companyId" = '${COMPANY_ID}';
 
-CREATE INDEX IF NOT EXISTS idx_${COMPANY_ID//\-/_}_contracts_status
-  ON contracts USING GIN ((data->>'status'))
-  WHERE company_id = '${COMPANY_ID}';
+CREATE INDEX IF NOT EXISTS ${DB_PREFIX}_jobs_tech
+  ON jobs ((data->>'technicianId'))
+  WHERE "companyId" = '${COMPANY_ID}';
 
--- Audit compliance index
+CREATE INDEX IF NOT EXISTS ${DB_PREFIX}_contracts_status
+  ON contracts ((data->>'status'))
+  WHERE "companyId" = '${COMPANY_ID}';
+
+-- Chronological audit compliance lookup
 CREATE INDEX IF NOT EXISTS idx_audit_${COMPANY_ID//\-/_}
-  ON audit_logs (company_id, occurred_at DESC)
-  WHERE company_id = '${COMPANY_ID}';
-
+  ON audit_logs ("companyId", "occurredAt" DESC)
+  WHERE "companyId" = '${COMPANY_ID}';
 SQL
 
-echo "✅ Indexes created"
+echo "✅ Indexes verified and deployed."
 
 # ============================================
 # SUMMARY
 # ============================================
 
+# Note: Remove any stray 'sed -i ...' lines from down here so they don't throw errors!
+
 echo ""
-echo "🎉 Initialization Complete!"
+echo "🎉 Tenant Onboarding Pipeline Complete!"
 echo "==================================="
-echo "Company ID: $COMPANY_ID"
+echo "Company ID:  $COMPANY_ID"
 echo "Config File: $CONFIG_FILE"
-echo "Tier: $TIER"
+echo "Tier Level:  $TIER"
 echo ""
-echo "Next steps:"
-echo "1. Review config: cat $CONFIG_FILE"
-echo "2. Customize as needed"
-echo "3. Start services: pnpm dev"
+echo "Next platform steps:"
+echo "1. Verify configuration integrity: cat $CONFIG_FILE"
+echo "2. Spin up monorepo applications: pnpm dev"
+

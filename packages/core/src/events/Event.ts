@@ -7,7 +7,6 @@ import { randomUUID } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 import type { RequestContext } from '../types';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================================
 // DOMAIN EVENT TYPES
 // ============================================================
@@ -151,7 +150,3 @@ export class EventEmitter {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;

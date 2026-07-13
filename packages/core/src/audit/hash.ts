@@ -1,6 +1,5 @@
 import crypto from 'node:crypto';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // Stable, deterministic JSON stringify
 // - Sorts keys recursively
@@ -48,7 +47,3 @@ export function computeAuditHash(payload: unknown): string {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

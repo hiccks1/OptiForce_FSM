@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/domain/visit/index.ts
 // Visit Domain Barrel Export
@@ -78,7 +77,3 @@ export {
 } from './VisitCompletion';
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

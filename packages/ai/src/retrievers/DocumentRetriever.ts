@@ -11,7 +11,6 @@ import {
   DriftyLayer,
   DRIFTY_FILE_DECLARATION_SYMBOL,
   type DriftyFileContract,
-} from '../../../../drifty/laws';
 
 export const DRIFTY_FILE_CONTRACT: DriftyFileContract = {
   driftyVersion: DRIFTY_VERSION,

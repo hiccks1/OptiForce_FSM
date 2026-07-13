@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/errors/base.ts
 // Domain Error Base Class
@@ -62,7 +61,4 @@ export abstract class DomainError extends Error {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;
+

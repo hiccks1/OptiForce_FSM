@@ -4,7 +4,6 @@
 
 import { z } from "zod";
 
-import { DriftyLayer } from "../../drifty/laws";
 export const JOB_DATA_VERSION = 1 as const;
 
 export const VisitStatusV1 = z.enum([
@@ -97,7 +96,3 @@ export type VisitV1 = z.infer<typeof VisitV1>;
 export type JobDataV1 = z.infer<typeof JobDataV1>;
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

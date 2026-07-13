@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/types/index.ts
 // PURE TYPES ONLY - Zero runtime code
@@ -269,7 +268,3 @@ export interface ArrivalWindow {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;

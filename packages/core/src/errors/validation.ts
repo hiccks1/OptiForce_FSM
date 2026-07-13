@@ -5,7 +5,6 @@
 
 import { DomainError } from './base';
 
-import { DriftyLayer } from "../../drifty/laws";
 /**
  * Thrown when input validation fails.
  * 
@@ -77,7 +76,3 @@ export class ValidationError extends DomainError {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;

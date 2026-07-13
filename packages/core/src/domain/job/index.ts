@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/domain/job/index.ts
 // Job Domain Barrel Export
@@ -50,7 +49,3 @@ export {
 } from './JobRules';
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

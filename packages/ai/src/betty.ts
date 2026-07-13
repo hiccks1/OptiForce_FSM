@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 
 
 export const DRIFTY_FILE_CONTRACT = {

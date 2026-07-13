@@ -10,7 +10,6 @@ import type { JobData, LineItem } from './JobData';
 import type { JobStatus } from './JobStatus';
 import { isLocked, canEditPricing, checkJobCompletion } from './JobStatus';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // VALIDATION RESULT
 // ============================================
@@ -270,7 +269,3 @@ export function validateJobUpdate(params: {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

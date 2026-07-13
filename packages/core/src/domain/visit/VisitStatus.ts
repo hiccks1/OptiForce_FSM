@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/domain/visit/VisitStatus.ts
 // Visit State Machine - Pure Domain Logic
@@ -183,7 +182,3 @@ export function getTransitionRequirements(
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

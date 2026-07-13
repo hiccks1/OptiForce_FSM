@@ -1,32 +1,31 @@
 {
   "name": "@fsm/db",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
-  "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./src/index.ts",
+      "import": "./src/index.ts",
       "default": "./src/index.ts"
     }
   },
   "scripts": {
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
-    "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "seed": "prisma db seed"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.3.0",
-    "@prisma/client": "^7.3.0",
-    "pg": "^8.18.0"
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "pg": "^8.13.0"
   },
   "devDependencies": {
-    "dotenv": "^16.6.1",
-    "prisma": "^7.3.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.5.0"
+    "@types/pg": "^8.11.11",
+    "prisma": "^7.8.0",
+    "tsx": "^4.23.0",
+    "typescript": "^5.3.3"
   }
 }

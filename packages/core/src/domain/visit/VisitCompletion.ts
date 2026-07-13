@@ -14,7 +14,6 @@ import type {
 } from './VisitData';
 import type { Money } from '../../types';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // COMPLETION INPUT
 // ============================================
@@ -341,7 +340,3 @@ export function prepareRegulatedCompletion(
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

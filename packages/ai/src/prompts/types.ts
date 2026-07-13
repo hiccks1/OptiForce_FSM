@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/ai/src/prompts/types.ts
 // ============================================================
 // Prompt Definitions

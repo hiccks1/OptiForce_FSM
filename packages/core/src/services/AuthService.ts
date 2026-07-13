@@ -1,12 +1,9 @@
-===============================================================================================
+//====================================================
 // packages/core/src/services/AuthService.ts (LOCKED)
 // Core auth service (minimal, tenant-safe stubs).
-===============================================================================================
+//====================================================
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L2_DOMAIN"],
-};
+
 
 export type LoginResult =
   | { ok: true; userId: string; companyId: string }

@@ -6,7 +6,6 @@
 import { DomainError } from './base';
 import type { EntityType, OperationType } from '../types';
 
-import { DriftyLayer } from "../../drifty/laws";
 /**
  * Thrown when actor lacks permission for an operation.
  * 
@@ -87,7 +86,3 @@ export class AuthorizationError extends DomainError {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;

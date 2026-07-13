@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/ai/src/tools/BaseTool.ts
 // ============================================================
 // Base Tool

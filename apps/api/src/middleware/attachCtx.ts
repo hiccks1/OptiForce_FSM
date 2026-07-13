@@ -1,17 +1,12 @@
 // apps/api/src/middleware/attachCtx.ts
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L3_INTEGRATION"],
-};
-
 import type { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'node:crypto';
 import { prisma } from '@fsm/db';
-import type { CompanyConfigPayload } from '@fsm/core/config';
-import { loadActiveCompanyConfig } from '@fsm/core/config/loadCompanyConfig';
-import { createUserContext } from '@fsm/core/context/RequestContext';
-import type { RequestContext } from '@fsm/core/context/RequestContext';
+import type { CompanyConfigPayload } from '@fsm/core';
+import { loadActiveCompanyConfig } from '@fsm/core';
+import { createUserContext } from '@fsm/core';
+import type { RequestContext } from '@fsm/core';
 import type { UserRole } from '@prisma/client';
 
 export type ApiDeps = {

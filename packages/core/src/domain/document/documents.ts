@@ -7,7 +7,6 @@
 
 import type { CompanySchema } from '../config/companySchema';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================================
 // CORE DOMAIN TYPES
 // ============================================================
@@ -119,7 +118,3 @@ export type NewChangeOrder = Omit<
 // - Payments & ledgers consume Contract + ChangeOrder deltas
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

@@ -2,7 +2,6 @@
 import { computeAuditHash } from './hash';
 import type { PrismaClient } from '@prisma/client';
 
-import { DriftyLayer } from "../../drifty/laws";
 export async function writeAuditLog(
   prisma: PrismaClient,
   input: {
@@ -40,7 +39,3 @@ export async function writeAuditLog(
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

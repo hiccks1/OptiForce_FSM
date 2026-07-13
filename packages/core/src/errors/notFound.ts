@@ -6,7 +6,6 @@
 import { DomainError } from './base';
 import type { EntityType } from '../types';
 
-import { DriftyLayer } from "../../drifty/laws";
 /**
  * Thrown when an entity cannot be found.
  * 
@@ -46,7 +45,4 @@ export class NotFoundError extends DomainError {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;
+

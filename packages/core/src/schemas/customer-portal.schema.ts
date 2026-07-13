@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 ```ts
 // packages/config/src/schemas/customer-portal.schema.ts
 
@@ -159,7 +158,3 @@ export interface PortalCondition {
 ```
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;

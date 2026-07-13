@@ -23,6 +23,7 @@ fi
 
 wait_for_postgres() {
   log "Waiting for Postgres..."
+  # Hardcoded to match your actual database user and name
   until docker exec fsm-postgres pg_isready -U postgres -d fsm >/dev/null 2>&1; do
     sleep 1
   done
@@ -54,12 +55,15 @@ start_infra() {
 }
 
 run_prisma_once() {
-  log "Generating Prisma client..."
-  pnpm --filter @fsm/db db:generate
+  export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/fsm?schema=public"
 
-  # You have no migrations, so deploy does nothing. Use db push to create tables.
-  log "Pushing Prisma schema to DB (db push)..."
-  pnpm --filter @fsm/db db:push
+  log "Generating Prisma 7 client via root Turbo script..."
+  # 💡 FIXED: Runs your optimal root command directly
+  pnpm db:generate
+
+  log "Pushing Prisma schema to DB via root Turbo script..."
+  # 💡 FIXED: Runs your database synchronization mapping script cleanly
+  pnpm db:migrate
 }
 
 case "${1:-}" in
@@ -67,7 +71,7 @@ case "${1:-}" in
     start_infra
     run_prisma_once
     log "Starting dev servers..."
-    pnpm turbo dev
+        pnpm turbo dev --filter=@fsm/api --filter=@fsm/web --filter=@fsm/worker --parallel
     ;;
   migrate)
     start_infra

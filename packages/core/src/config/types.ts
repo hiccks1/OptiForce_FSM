@@ -1,11 +1,10 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/core/src/config/companySchema.ts
-// ============================================================
+// ================================================
 // CompanyConfig Schema — Phase 1 (LAW BOOK)
 // Versioned, forward-compatible, UI-friendly, still declarative
-// ============================================================
+// ==================================================
 
-// ============================================================
+// ==================================================
 // TOP-LEVEL COMPANY SCHEMA
 // ============================================================
 
@@ -21,18 +20,18 @@ export interface CompanySchema {
   // estimates?: EstimateDefinitions;
 }
 
-// ============================================================
+// ===================================================
 // DOCUMENT FOUNDATION
-// ============================================================
+// ==================================================
 
 export interface DocumentDefinitions {
   fieldTypes: Record<string, FieldTypeDefinition>;
   commonFields: Record<string, FieldDefinition>;
 }
 
-// ============================================================
+// ===================================================
 // FIELD TYPES (PRIMITIVES + VALIDATION)
-// ============================================================
+// ================================================
 
 export type FieldType =
   | 'text'
@@ -64,9 +63,9 @@ export interface FieldTypeDefinition {
   };
 }
 
-// ============================================================
+// ============================================
 // FIELD DEFINITION (MOST IMPORTANT STRUCTURE)
-// ============================================================
+// ===================================================
 
 export interface FieldDefinition {
   label: string;
@@ -94,9 +93,9 @@ export interface FieldDefinition {
   defaultValue?: unknown;
 }
 
-// ============================================================
+// =================================================
 // CONTRACT DEFINITIONS (IMMUTABLE BY LAW)
-// ============================================================
+// ===================================================
 
 export interface ContractDefinitions {
   templates: Record<string, ContractTemplate>;
@@ -128,9 +127,9 @@ export interface ContractTemplate {
   };
 }
 
-// ============================================================
+// ==================================================
 // CHANGE ORDER DEFINITIONS (DELTA DOCUMENTS)
-// ============================================================
+// ===================================================
 
 export interface ChangeOrderDefinitions {
   templates: Record<string, ChangeOrderTemplate>;
@@ -162,7 +161,3 @@ export interface ChangeOrderTemplate {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L4_INFRA],
-} as const;

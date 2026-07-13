@@ -11,7 +11,6 @@ import { randomUUID } from 'node:crypto';
 import type { ActorType, UserRole } from '@prisma/client';
 import type { CompanyId, UserId } from '../types';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // REQUEST CONTEXT (IMMUTABLE)
 // ============================================
@@ -199,7 +198,3 @@ export function assertAIActor(ctx: RequestContext): asserts ctx is RequestContex
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

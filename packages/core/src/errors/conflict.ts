@@ -6,7 +6,6 @@
 import { DomainError } from './base';
 import type { EntityType, ImmutabilityReason } from '../types';
 
-import { DriftyLayer } from "../../drifty/laws";
 /**
  * Thrown when an operation conflicts with current state.
  * 
@@ -122,7 +121,3 @@ export class ConflictError extends DomainError {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;

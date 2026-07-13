@@ -2,7 +2,6 @@
 import type { prisma as PrismaSingleton } from '@fsm/db';
 import { parseCompanyConfigPayload } from './payload';
 
-import { DriftyLayer } from "../../drifty/laws";
 export async function loadActiveCompanyConfig(
   deps: { prisma: typeof PrismaSingleton },
   companyId: string
@@ -22,7 +21,4 @@ export async function loadActiveCompanyConfig(
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L4_INFRA],
-} as const;
+

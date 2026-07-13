@@ -11,7 +11,6 @@ import {
   DriftyLayer,
   DRIFTY_FILE_DECLARATION_SYMBOL,
   type DriftyFileContract,
-} from '../../../../drifty/laws';
 
 // Export symbol name for validators (do not rename)
 
@@ -268,7 +267,3 @@ export class ScheduleService {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

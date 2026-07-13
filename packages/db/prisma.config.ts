@@ -1,17 +1,20 @@
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L1_DATA"],
-};
+import dotenv from 'dotenv';
+import path from 'path';
+import { defineConfig } from 'prisma/config'; 
 
-import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
+// 💡 Guarantees your .env file at the monorepo root is read perfectly 
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export default defineConfig({
-  schema: "prisma/schema.prisma",
+  schema: 'prisma/schema.prisma', 
+
   migrations: {
-    path: "prisma/migrations",
+    path: 'prisma/migrations',
+    seed: 'pnpm tsx prisma/seed.ts', 
   },
+
   datasource: {
-    url: env("DATABASE_URL"),
+    // 💡 Connects to your Docker container via localhost forward
+    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fsm',
   },
 });

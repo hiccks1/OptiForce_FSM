@@ -1,7 +1,5 @@
-import { DriftyLayer } from "../../drifty/laws";
+export * from './company.schema';
+export * from './job.schema';
+export * from './document.schema';
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

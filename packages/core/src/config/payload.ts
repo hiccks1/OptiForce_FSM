@@ -11,7 +11,6 @@ import type { /* feature types */ } from './features';
 
 import { CompanyConfigPayloadSchema } from '@fsm/schemas/company.schema';
 
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // METADATA (Company identity)
 // ============================================
@@ -309,7 +308,3 @@ export function safeParseCompanyConfigPayload(data: unknown): {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L4_INFRA],
-} as const;

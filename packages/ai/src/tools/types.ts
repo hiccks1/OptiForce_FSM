@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/ai/src/tools/types.ts
 // ============================================================
 // AI Tool Contracts

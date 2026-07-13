@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/index.ts
 // Main Core Package Export
@@ -8,9 +7,11 @@ export * from './types';
 export * from './errors';
 export * from './context';
 export * from './services';
+export * from './config';
+export * from './audit';
+export * from './domain';
+export * from './events';
+export * from './payloads';
+export * from './schemas';
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L0_REPO],
-} as const;

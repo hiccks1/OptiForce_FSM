@@ -2,7 +2,6 @@
 
 import { AccountStatus, AccountType } from "@prisma/client";
 
-import { DriftyLayer } from "../../drifty/laws";
 export type Account = {
   id: string;
   accountNumber: string;
@@ -42,7 +41,3 @@ export type AccountWithContacts = Account & {
 };
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

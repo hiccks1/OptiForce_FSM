@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/services/AuthService.ts - Core auth logic
 export const DRIFTY_FILE_DECLARATION_SYMBOL = "L2_DOMAIN";
 export const AuthService = {
@@ -8,7 +7,3 @@ export const AuthService = {
 };
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

@@ -3,20 +3,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "turbo dev --concurrency=20",
-    "build": "./scripts/run.sh build",
-    "clean": "turbo clean",
+    "dev": "./scripts/run.sh dev",
+    "build": "./run.sh build",
+    "seed": "tsx ./scripts/seed/seed.ts",
+    "init-tenant": "./scripts/setup/init.sh",
+    "clean": "pnpm turbo daemon clean && turbo clean",
     "start": "./scripts/run.sh start",
     "drifty": "tsx ./drifty/drifty-validate.ts .",
     "db:generate": "turbo run db:generate --filter=@fsm/db",
     "db:migrate": "turbo run db:migrate --filter=@fsm/db",
-    "db:studio": "pnpm --filter @repo/db db:studio",
+    "db:studio": "turbo run db:studio --filter=@fsm/db -- -- prisma studio",
     "docker:up": "docker compose -f infra/docker/docker-compose.yml --env-file .env up -d",
     "docker:down": "docker compose -f infra/docker/docker-compose.yml down",
     "docker:logs": "docker compose -f infra/docker/docker-compose.yml logs -f"
   },
   "devDependencies": {
     "minimatch": "^10.2.2",
+    "tsx": "^4.22.4",
     "turbo": "^2.3.0"
   },
   "packageManager": "pnpm@9.0.0"

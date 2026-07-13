@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/config/features.ts
 // Feature Flags & Module Configuration
@@ -554,7 +553,3 @@ export interface MultiLocationFeatures {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L4_INFRA],
-} as const;

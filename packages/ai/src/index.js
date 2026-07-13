@@ -18,7 +18,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DRIFTY_FILE_CONTRACT = void 0;
 __exportStar(require("./retrievers"), exports);
 __exportStar(require("./tools"), exports);
 __exportStar(require("./prompts"), exports);
 __exportStar(require("./memory"), exports);
+exports.DRIFTY_FILE_CONTRACT = {
+    driftyVersion: "1.0.0",
+    layers: [DriftyLayer.L5_AI],
+};

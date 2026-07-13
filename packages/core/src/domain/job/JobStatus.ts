@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // ============================================
 // packages/core/src/domain/job/JobStatus.ts
 // Job State Machine - Pure Domain Logic
@@ -156,8 +155,3 @@ export function checkJobCompletion(
   };
 }
 
-
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

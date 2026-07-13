@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/ai/src/memory/BaseMemory.ts
 // ============================================================
 // Base Memory

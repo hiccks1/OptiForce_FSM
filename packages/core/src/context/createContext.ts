@@ -3,7 +3,6 @@
 import { RequestContext } from "./RequestContext";
 import { UserRole } from "@prisma/client";
 
-import { DriftyLayer } from "../../drifty/laws";
 type CreateContextInput = {
   actorId: string;
   role: UserRole;
@@ -58,7 +57,3 @@ export function createSystemContext(jobName: string): RequestContext {
 }
 
 
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;

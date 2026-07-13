@@ -1,15 +1,10 @@
-===============================================================================================
+//===================================================
 // packages/core/src/services/BaseEntityService.ts (LOCKED)
 // Base service helpers: tenant scoping + audit hooks (no repository pattern).
-===============================================================================================
+//=================================================
 
 import type { PrismaClient } from "@fsm/db";
 import type { RequestContext } from "../context/RequestContext";
-
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L2_DOMAIN"],
-};
 
 export type AuditAction =
   | "CREATE"

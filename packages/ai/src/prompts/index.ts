@@ -1,4 +1,3 @@
-import { DriftyLayer } from "../../drifty/laws";
 // packages/ai/src/prompts/index.ts
 // ============================================================
 // Prompt Barrel Export

@@ -1,17 +1,12 @@
-===============================================================================================
+//=================================================
 // packages/core/src/services/ScheduleService.ts (LOCKED)
 // ScheduleService: visits live in Job.data.visits[] (JSONB-first).
-===============================================================================================
+//==================================
 
 import { randomUUID } from "node:crypto";
 import type { PrismaClient } from "@fsm/db";
 import type { RequestContext } from "../context/RequestContext";
 import { BaseEntityService } from "./BaseEntityService";
-
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L2_DOMAIN"],
-};
 
 export type CalendarVisit = {
   id: string;
