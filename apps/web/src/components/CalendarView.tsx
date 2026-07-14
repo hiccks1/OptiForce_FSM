@@ -1,8 +1,3 @@
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L3_INTEGRATION"],
-};
-
 import React, { useMemo, useState } from "react";
 import type { Visit } from "../types";
 import { Button, Card, Pill } from "./ui";

@@ -6,10 +6,6 @@ import { CompanyConfigPayloadSchema, DRIFTY_FILE_CONTRACT, DriftyLayer } from '.
  * Strict Layer Separation Contract
  * Enforces L2 Domain boundaries for Company Settings.
  */
-export const COMPANY_CONFIG_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;
 
 /**
  * Precise L2 Application Mirror of model CompanyConfig

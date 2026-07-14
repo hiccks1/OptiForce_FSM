@@ -1,8 +1,3 @@
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L3_INTEGRATION"],
-};
-
 import type { ApiResult, Visit, Customer } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
@@ -61,7 +56,7 @@ export const api = {
 
   async listVisits(params: { from: string; to: string; technicianId?: string }) {
     const q = new URLSearchParams({
-      companyId: "demo",
+      companyId: "comp_dev_123",
       start: params.from,
       end: params.to,
       ...(params.technicianId ? { technicianId: params.technicianId } : {}),
@@ -110,7 +105,7 @@ export const api = {
       serviceAddress: input.address ?? null,
     };
 
-    const q = new URLSearchParams({ companyId: "demo" }).toString();
+    const q = new URLSearchParams({ companyId: "comp_dev_123" }).toString();
 
     const created = await request<CreateJobVisitResponse>(`/jobs?${q}`, {
       method: "POST",
@@ -149,7 +144,7 @@ export const api = {
       address?: unknown;
     }
   ) {
-    const q = new URLSearchParams({ companyId: "demo" }).toString();
+    const q = new URLSearchParams({ companyId: "comp_dev_123" }).toString();
 
     return request<{ ok: true }>(`/jobs/${visit.jobId}/visits/${visit.visitId}?${q}`, {
       method: "PATCH",
@@ -179,7 +174,7 @@ export const api = {
     to.setDate(to.getDate() + 60);
 
     const q = new URLSearchParams({
-      companyId: "demo",
+      companyId: "comp_dev_123",
       start: from.toISOString(),
       end: to.toISOString(),
     }).toString();

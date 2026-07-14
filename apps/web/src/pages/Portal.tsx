@@ -1,8 +1,3 @@
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L3_INTEGRATION"],
-};
-
 import React, { useEffect, useState } from "react";
 import type { Visit } from "../types";
 import { api } from "../api/client";

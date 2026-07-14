@@ -8,12 +8,12 @@
 export {
   // Types
   type RequestContext,
-  type CreateUserContextParams,
+  type CreateContextParams,
   type CreateBettyContextParams,
   type CreateSystemContextParams,
   
   // Factories
-  createUserContext,
+  createContext,
   createBettyContext,
   createSystemContext,
   

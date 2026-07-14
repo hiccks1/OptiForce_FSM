@@ -1,18 +1,9 @@
 import 'dotenv/config';
-import { PrismaClient } from './generated/prisma';
+import { prisma } from '@fsm/db';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 
-export enum DriftyLayer {
-  L1_DATA = "L1_DATA"
-}
-
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L1_DATA], 
-} as const;
-
-const globalForDatabase = globalThis as unknown as {
+  const globalForDatabase = globalThis as unknown as {
   prismaInstance: any; 
   poolInstance: pg.Pool | undefined;
 };

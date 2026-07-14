@@ -1,6 +1,5 @@
-import { PrismaClient } from './@fsm/db';
-import { prisma, DriftyLayer } from './client'; 
-import type { RequestContext } from '../../core/context/RequestContext';
+import { prisma } from '@fsm/db';
+import type { RequestContext } from '@fsm/core/';
 
 export const DB_TRANSACTIONS_VERSION = 1 as const;
 

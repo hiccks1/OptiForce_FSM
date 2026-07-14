@@ -5,7 +5,7 @@ export const DRIFTY_FILE_CONTRACT = {
 
 import React, { useEffect, useMemo, useState } from "react";
 import type { Visit } from "../types";
-import { api } from "../api/client";
+import { api } from "@fsm/api";
 import { CalendarView } from "../components/CalendarView";
 import { Button, Card, Input, Pill } from "../components/ui";
 

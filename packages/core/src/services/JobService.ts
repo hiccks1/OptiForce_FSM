@@ -1,12 +1,6 @@
-// FSM/packages/core/src/services/jobService.ts
-
-import { RequestContext } from "../context/RequestContext";
-import { Job, JobWithDetails } from "../domain/Job";
-import { PrismaClient, JobStatus } from "@prisma/client";
+import { RequestContext, JobWithDetails } from "./types"; // Adjust imports based on your file setup
 
 export class JobService {
-  constructor(private db: PrismaClient) {}
-
   async getJob(
     ctx: RequestContext,
     jobId: string
@@ -37,7 +31,9 @@ export class JobService {
             createdAt: true,
           },
           orderBy: {
-        startTime: "asc",
+            createdAt: "asc", // Adjusted to sort notes by creation time
+          },
+        },
       },
     });
   }

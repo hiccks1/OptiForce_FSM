@@ -1,11 +1,6 @@
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L3_INTEGRATION"],
-};
-
 import React, { useState, useEffect, useRef } from "react";
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
-import api from "../services/api";
+import api from "../api/client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

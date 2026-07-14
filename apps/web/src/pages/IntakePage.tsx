@@ -40,8 +40,8 @@ interface CustomerIntakeForm {
 
 export default function CsrCustomerIntake() {
   // Hardcoded simulation - In production, pull these live from your system context / session
-  const CURRENT_COMPANY = { id: "comp_918231", name: "Apex Air HVAC & Plumbing" };
-  const LOGGED_IN_CSR = "Sarah Jenkins";
+  const CURRENT_COMPANY = { id: "comp_dev_123", name: "Dev" };
+  const LOGGED_IN_ADMIN = "Dev_user_456";
   const AVAILABLE_TECHNICIANS = [
     { id: "tech_01", name: "Dave Miller (HVAC Senior)" },
     { id: "tech_02", name: "Marcus Brody (Plumbing Pro)" },
@@ -51,7 +51,7 @@ export default function CsrCustomerIntake() {
   // Initial Form Setup
   const [formData, setFormData] = useState<CustomerIntakeForm>({
     companyId: CURRENT_COMPANY.id,
-    csrName: LOGGED_IN_CSR,
+    csrName: LOGGED_IN_ADMIN,
     firstName: '',
     lastName: '',
     phone: '',

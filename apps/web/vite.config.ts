@@ -7,5 +7,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [react()]
+  plugins: [react()],
+   optimizeDeps: {
+    // Prevents Vite from parsing deep inside @fsm/db's backend files during dev
+    exclude: ["@fsm/db"] 
+  }  
 });
