@@ -1,285 +1,249 @@
-// FSM/packages/db/prisma/seed.ts
+// packages/db/prisma/seed.ts
 /* eslint-disable no-console */
-
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { resolve } from 'node:path';
 import { Pool } from 'pg';
+
+config({ path: resolve(__dirname, '../../../.env') });
 import { PrismaPg } from '@prisma/adapter-pg';
-// Pure TS path resolution - no trailing file extensions
 import { PrismaClient } from '../src/generated/prisma/client';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+const COMPANY_ID = 'comp_demo_123';
+
+function at(dayOffset: number, hour: number, minutes = 0): string {
+  const d = new Date();
+  d.setDate(d.getDate() + dayOffset);
+  d.setHours(hour, minutes, 0, 0);
+  return d.toISOString();
+}
+
+function plusHours(iso: string, hours: number): string {
+  return new Date(new Date(iso).getTime() + hours * 3600_000).toISOString();
+}
+
+const TECHS = [
+  { id: 'tech_amir', name: 'Amir Kaplan' },
+  { id: 'tech_dana', name: 'Dana Ruiz' },
+  { id: 'tech_leo', name: 'Leo Chen' },
+];
+
+type SeedCustomer = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: { line1: string; city: string; state: string; postalCode: string };
+  serviceType: string;
+  priority: 'low' | 'normal' | 'urgent';
+  visits: Array<{ dayOffset: number; hour: number; durationH: number; tech: number; title: string; status?: string }>;
+};
+
+const CUSTOMERS: SeedCustomer[] = [
+  {
+    id: 'cust_hendricks',
+    name: 'Hendricks Residence',
+    email: 'sara.hendricks@example.com',
+    phone: '(512) 555-0148',
+    address: { line1: '1420 Oak Meadow Dr', city: 'Austin', state: 'TX', postalCode: '78745' },
+    serviceType: 'HVAC',
+    priority: 'urgent',
+    visits: [
+      { dayOffset: 0, hour: 9, durationH: 2, tech: 0, title: 'AC not cooling — diagnostic' },
+      { dayOffset: 3, hour: 13, durationH: 3, tech: 0, title: 'Compressor replacement' },
+    ],
+  },
+  {
+    id: 'cust_bright',
+    name: 'Bright Cafe',
+    email: 'ops@brightcafe.example.com',
+    phone: '(512) 555-0192',
+    address: { line1: '88 Congress Ave', city: 'Austin', state: 'TX', postalCode: '78701' },
+    serviceType: 'Refrigeration',
+    priority: 'normal',
+    visits: [
+      { dayOffset: 1, hour: 8, durationH: 2, tech: 1, title: 'Walk-in cooler maintenance' },
+      { dayOffset: 8, hour: 10, durationH: 1, tech: 1, title: 'Follow-up inspection' },
+    ],
+  },
+  {
+    id: 'cust_pratt',
+    name: 'Pratt Manufacturing',
+    email: 'facilities@pratt.example.com',
+    phone: '(512) 555-0110',
+    address: { line1: '3200 Industrial Blvd', city: 'Round Rock', state: 'TX', postalCode: '78664' },
+    serviceType: 'Electrical',
+    priority: 'normal',
+    visits: [
+      { dayOffset: 2, hour: 14, durationH: 4, tech: 2, title: 'Panel upgrade — phase 1' },
+      { dayOffset: -4, hour: 9, durationH: 3, tech: 2, title: 'Site survey', status: 'COMPLETED' },
+    ],
+  },
+  {
+    id: 'cust_okafor',
+    name: 'Okafor Family',
+    email: 'n.okafor@example.com',
+    phone: '(512) 555-0177',
+    address: { line1: '705 Cedar Ln', city: 'Cedar Park', state: 'TX', postalCode: '78613' },
+    serviceType: 'Plumbing',
+    priority: 'low',
+    visits: [{ dayOffset: 5, hour: 11, durationH: 2, tech: 1, title: 'Water heater install' }],
+  },
+  {
+    id: 'cust_riverside',
+    name: 'Riverside Apartments',
+    email: 'manager@riverside.example.com',
+    phone: '(512) 555-0133',
+    address: { line1: '50 Riverwalk Pkwy', city: 'Austin', state: 'TX', postalCode: '78704' },
+    serviceType: 'HVAC',
+    priority: 'normal',
+    visits: [
+      { dayOffset: 4, hour: 9, durationH: 2, tech: 0, title: 'Unit 12B — thermostat' },
+      { dayOffset: 4, hour: 13, durationH: 2, tech: 2, title: 'Unit 4A — filter service' },
+    ],
+  },
+  {
+    id: 'cust_lopez',
+    name: 'Lopez Bakery',
+    email: 'hello@lopezbakery.example.com',
+    phone: '(512) 555-0166',
+    address: { line1: '212 E 6th St', city: 'Austin', state: 'TX', postalCode: '78701' },
+    serviceType: 'Refrigeration',
+    priority: 'normal',
+    visits: [],
+  },
+];
+
 async function main() {
-  console.log('🌱 Executing database seed script against the current schema model...');
+  console.log('🌱 Seeding OptiForce FSM demo data...');
 
-  const companyId = "comp_demo_123";
-  const userId = "user_demo_456";
-  const contractId = "contract_demo_789";
-  const jobId = "job_demo_987";
-  const manifestId = "manifest_demo_abc";
-  const documentId = "doc_demo_xyz";
-
-  // 1. Seed 'companies' -> Prisma Client exposes this as 'company'
-  console.log('🏢 Seeding companies...');
+  // 1) Company
   await prisma.company.upsert({
-    where: { id: companyId },
-    update: {},
-    create: {
-      id: companyId,
-      name: "FSM Active Enterprise",
-      subdomain: "demo",
-      deletedBy: null,
-    },
+    where: { id: COMPANY_ID },
+    update: { name: 'OptiForce Field Services' },
+    create: { id: COMPANY_ID, name: 'OptiForce Field Services', subdomain: 'demo' },
   });
 
-  // 2. Seed 'users' -> Prisma Client exposes this as 'user'
-  console.log('👤 Seeding users...');
-  await prisma.user.upsert({
-    where: { id: userId },
-    update: {},
-    create: {
-      id: userId,
-      email: "engineer@demo.fsm",
-      name: "Phil Developer",
-      companyId: companyId,
-      deletedBy: null,
-      role: "OWNER"
-    },
-  });
-
-  // 3. Seed 'company_configs' -> Prisma Client exposes this as 'company_configs' or 'company_config'
-  console.log('⚙️ Seeding company_configs...');
-  await prisma.companyConfigs?.upsert?.({
-    where: { id: "config_demo_001" },
-    update: {},
-    create: {
-      id: "config_demo_001",
-      companyId: companyId,
+  // 2) Company config (incl. customer portal config)
+  await prisma.companyConfig.upsert({
+    where: { companyId_version: { companyId: COMPANY_ID, version: 1 } },
+    update: {
       isActive: true,
-      version: 1,
-      contentHash: "config-v1-hash",
-      schema: { version: "1.0", features: ["audit", "c2pa"] },
+      schema: {
+        version: '1.0',
+        features: ['scheduling', 'documents', 'customer-portal'],
+        customerPortal: {
+          title: 'OptiForce Customer Portal',
+          description: 'View your upcoming service appointments and reschedule if needed.',
+          primaryColor: '#4f46e5',
+          allowReschedule: true,
+        },
+      },
     },
-  }) || await prisma.companyConfig.upsert({
-    where: { id: "config_demo_001" },
-    update: {},
     create: {
-      id: "config_demo_001",
-      companyId: companyId,
+      id: 'config_demo_001',
+      companyId: COMPANY_ID,
+      version: 1,
       isActive: true,
-      version: 1,
-      contentHash: "config-v1-hash",
-      schema: { version: "1.0", features: ["audit", "c2pa"] },
+      contentHash: 'config-v1',
+      schema: {
+        version: '1.0',
+        features: ['scheduling', 'documents', 'customer-portal'],
+        customerPortal: {
+          title: 'OptiForce Customer Portal',
+          description: 'View your upcoming service appointments and reschedule if needed.',
+          primaryColor: '#4f46e5',
+          allowReschedule: true,
+        },
+      },
     },
   });
 
-  // 4. Seed 'contracts' -> Prisma Client exposes this as 'contracts' or 'contract'
-  console.log('📄 Seeding contracts...');
-  await prisma.contracts?.upsert?.({
-    where: { id: contractId },
-    update: {},
-    create: {
-      id: contractId,
-      companyId: companyId,
-      createdBy: userId,
-      updatedBy: userId,
-      deletedBy: null,
-      c2paManifestId: null,
-      previousHash: "",
-      contentHash: "initial-contract-secure-hash",
-      data: MockJobPayload
-    },
-  }) || await prisma.contract.upsert({
-    where: { id: contractId },
-    update: {},
-    create: {
-      id: contractId,
-      companyId: companyId,
-      createdBy: userId,
-      updatedBy: userId,
-      deletedBy: null,
-      c2paManifestId: null,
-      previousHash: "",
-      contentHash: "initial-contract-secure-hash",
-       data: {
-      contractType: "standard_service",
-      version: "1.0",
-      terms: "This is a placeholder for your variable multi-contract types or cryptohash signatures.",
-      cryptoHash: "0x7f83b1a2c3d4e5f6"
-    },
+  // 3) Users (CSR + techs + owner)
+  const users = [
+    { id: 'user_owner', email: 'owner@optiforce.demo', name: 'Morgan Vale', role: 'OWNER' as const },
+    { id: 'user_csr', email: 'csr@optiforce.demo', name: 'Jamie Fields', role: 'CSR' as const },
+    { id: TECHS[0]!.id, email: 'amir@optiforce.demo', name: TECHS[0]!.name, role: 'FIELD' as const },
+    { id: TECHS[1]!.id, email: 'dana@optiforce.demo', name: TECHS[1]!.name, role: 'FIELD' as const },
+    { id: TECHS[2]!.id, email: 'leo@optiforce.demo', name: TECHS[2]!.name, role: 'FIELD' as const },
+  ];
+  for (const u of users) {
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: { name: u.name, role: u.role, companyId: COMPANY_ID },
+      create: { ...u, companyId: COMPANY_ID },
+    });
+  }
 
-    },
-  });
+  // 4) Jobs (one per customer, visits embedded in data) — reset for idempotency
+  await prisma.job.deleteMany({ where: { companyId: COMPANY_ID } });
+  await prisma.document.deleteMany({ where: { companyId: COMPANY_ID } });
 
-  // 5. Seed 'jobs' -> Prisma Client exposes this as 'jobs' or 'job'
-  console.log('🛠️ Seeding jobs...');
-  const mockJobPayload: any = {
-    title: "Enterprise Systems Deployment",
-    description: "Initialize core networking structures and baseline pipelines",
-    priority: "urgent",
-  };
+  for (const c of CUSTOMERS) {
+    const visits = c.visits.map((v, i) => {
+      const start = at(v.dayOffset, v.hour);
+      const tech = TECHS[v.tech]!;
+      return {
+        id: `visit_${c.id}_${i}`,
+        title: v.title,
+        technicianId: tech.id,
+        technicianName: tech.name,
+        start,
+        end: plusHours(start, v.durationH),
+        status: v.status ?? 'SCHEDULED',
+        notes: '',
+      };
+    });
 
-  await prisma.jobs?.upsert?.({
-    where: { id: jobId },
-    update: {},
-    create: {
-      id: jobId,
-      companyId: companyId,
-      createdBy: userId,
-      updatedBy: userId,
-      deletedBy: null,
-      previousHash: "",
-      contentHash: "initial-job-secure-hash",
-      data: mockJobPayload,
-    },
-  }) || await (prisma as any).job.upsert({
-    where: { id: jobId },
-    update: {},
-    create: {
-      id: jobId,
-      companyId: companyId,
-      createdBy: userId,
-      updatedBy: userId,
-      deletedBy: null,
-      previousHash: "",
-      contentHash: "initial-job-secure-hash",
-      data: mockJobPayload,
-    },
-  });
+    const status = visits.length === 0 ? 'NEW' : visits.every((v) => v.status === 'COMPLETED') ? 'COMPLETED' : 'SCHEDULED';
 
-  // 6. Seed 'c2pa_manifests' -> Prisma Client exposes this as 'c2pa_manifests' or 'c2pa_manifest'
-  console.log('🔏 Seeding c2pa_manifests...');
-  await prisma.c2PAManifest?.upsert?.({
-    where: { id: manifestId },
-    update: {},
-    create: {
-      id: manifestId,
-      companyId: companyId,
-      entityId: contractId,
-      entityType: "contract",
-      isVerified: true,
-      verifiedBy: userId,
-      signedBy: "Cloudflare Secure Edge Engine",
-      signature: "sha256-sig-payload-block-string",
-      manifestJson: { version: "c2pa@1.0", integrity: "valid" },
-    },
-  }) || await prisma.C2PAManifest.upsert({
-    where: { id: manifestId },
-    update: {},
-    create: {
-      id: manifestId,
-      companyId: companyId,
-      entityId: contractId,
-      entityType: "contract",
-      isVerified: true,
-      verifiedBy: userId,
-      signedBy: "Cloudflare Secure Edge Engine",
-      signature: "sha256-sig-payload-block-string",
-      manifestJson: { version: "c2pa@1.0", integrity: "valid" },
-    },
-  });
+    await prisma.job.create({
+      data: {
+        companyId: COMPANY_ID,
+        createdBy: 'user_csr',
+        data: {
+          title: `${c.serviceType} — ${c.name}`,
+          serviceType: c.serviceType,
+          priority: c.priority,
+          status,
+          customer: { id: c.id, name: c.name, email: c.email, phone: c.phone, address: c.address },
+          visits,
+        },
+      },
+    });
+  }
 
-  // 7. Seed 'documents' -> Prisma Client exposes this as 'documents' or 'document'
-  console.log('📁 Seeding documents...');
-  await prisma.document?.upsert?.({
-    where: { id: documentId },
-    update: {},
-    create: {
-      id: documentId,
-      companyId: companyId,
-      createdBy: userId,
-      updatedBy: userId,
-      deletedBy: null,
-      c2paManifestId: manifestId,
-      previousHash: "0x00000000",
-      contentHash: "file-storage-integrity-hash",
-      fileSize: 1048576,
-      metadata: {
-      contractType: "standard_service",
-      version: "1.0"
-    },
-    }
-  }) || await prisma.document.upsert({
-    where: { id: documentId },
-    update: {},
-    create: {
-      id: documentId,
-      companyId: companyId,
-      createdBy: userId,
-      updatedBy: userId,
-      deletedBy: null,
-      c2paManifestId: manifestId,
-      previousHash: "0x00000000",
-      contentHash: "file-storage-integrity-hash",
-      fileSize: 1048576,
-      metadata: {
-      contractType: "standard_service",
-      version: "1.0"
-    },
-    }
-  });
+  // 5) Documents
+  const docs = [
+    { id: 'doc_contract_hendricks', title: 'Service Agreement — Hendricks', status: 'PUBLISHED' as const, type: 'contract' },
+    { id: 'doc_invoice_pratt', title: 'Invoice #1042 — Pratt Manufacturing', status: 'APPROVED' as const, type: 'invoice' },
+    { id: 'doc_estimate_okafor', title: 'Estimate — Water Heater Install', status: 'PENDING_REVIEW' as const, type: 'estimate' },
+    { id: 'doc_report_riverside', title: 'Inspection Report — Riverside', status: 'DRAFT' as const, type: 'report' },
+  ];
+  for (const d of docs) {
+    await prisma.document.create({
+      data: {
+        id: d.id,
+        companyId: COMPANY_ID,
+        title: d.title,
+        status: d.status,
+        mimeType: 'application/pdf',
+        fileSize: 240_000,
+        createdBy: 'user_csr',
+        metadata: { documentType: d.type, version: '1.0' },
+      },
+    });
+  }
 
-   // 8. Seed Log Tables
-  console.log('📝 Seeding relational monitoring tables...');
-  
-  // Use the correct singular camelCase name: prisma.auditLog
-  await prisma.auditLog.upsert({
-    where: {
-      id: "audit_log_001"
-    },
-    update: {},
-    create: {
-      id: "audit_log_001",
-      requestId: "req_fsm_alpha_1",
-      userAgent: "Mozilla/5.0 Terminal Runner",
-      ipAddress: "127.0.0.1",
-      actorType: "HUMAN", // Must match your ActorType enum exactly (e.g., HUMAN, SYSTEM, AI)
-      prevRecordHash: "0x0",
-      beforeHash: "0x0",
-      afterHash: "initial-contract-secure-hash",
-      companyId: "comp_demo_123", // Make sure to link the required company relation if your schema demands it
-    },
-  });
-
-  const aiLogsModel = prisma.aiActioLogs || (prisma as any).ai_action_log;
-  await aiLogsModel.create({
-    data: {
-      id: "ai_log_001",
-      actorId: userId,
-      action: "schema_alignment_verification",
-      model: "gpt-4o",
-      version: "v1.0",
-      reason: "Initial baseline synchronization across docker instances",
-      contentHash: "ai-action-proof-hash",
-      allowed: true,
-    },
-  });
-
-  const hotPathModel = (prisma as any).hot_path_columns || (prisma as any).hot_path_column;
-  await hotPathModel.create({
-    data: {
-      id: "hot_path_001",
-      companyId: companyId,
-      tableName: "jobs",
-      columnName: "contentHash",
-      jsonPath: "$.title",
-      dataType: "text",
-      indexName: "idx_jobs_hot_path_contentHash",
-      isIndexed: true,
-      usage: "Frequent database state sync evaluations",
-      createdBy: userId,
-    },
-  });
-
-  console.log('🎉 Seeding successfully completed!');
+  console.log('🎉 Seed complete: 1 company, 5 users, 6 customers/jobs, 4 documents.');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ An error occurred during the seeding cycle:');
-    console.error(e);
+    console.error('❌ Seed failed:', e);
     process.exit(1);
   })
   .finally(async () => {

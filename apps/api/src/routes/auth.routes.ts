@@ -1,10 +1,9 @@
-// apps/api/src/routes/auth.ts - Auth routes
-
-import { Router } from "express";
-import { login } from "../controllers/auth";
+import { Router } from 'express';
+import { login, me } from '../controllers/auth';
 
 const router = Router();
 
-router.post("/login", login);
+router.post('/login', login);
+router.get('/users', me);
 
 export default router;
