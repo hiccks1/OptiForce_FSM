@@ -1,20 +1,19 @@
-import { prisma } from '@fsm/db';
-import type { RequestContext } from '@fsm/core/';
+import { prisma } from './client';
+import { Prisma } from './generated/prisma/client';
 
 export const DB_TRANSACTIONS_VERSION = 1 as const;
 
+/**
+ * Runs a callback inside a database transaction. Callers are expected to have a
+ * tenant-scoped context; the companyId guard keeps tenant-less calls out.
+ */
 export async function tenantTransaction<T>(
-  ctx: RequestContext,
-  fn: (tx: Prisma.TransactionClient) => Promise<T> 
+  ctx: { companyId?: string },
+  fn: (tx: Prisma.TransactionClient) => Promise<T>,
 ): Promise<T> {
   if (!ctx.companyId) {
     throw new Error('Missing companyId in RequestContext');
   }
 
-  return prisma.$transaction((tx) => fn(tx)); 
+  return prisma.$transaction((tx) => fn(tx));
 }
-
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L1_DATA],
-} as const;

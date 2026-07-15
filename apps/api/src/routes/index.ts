@@ -1,17 +1,16 @@
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L3_INTEGRATION"],
-};
-
-import { Router } from "express";
-import authRoutes from "./auth.routes";
-import customersRoutes from "./customers.routes";
-import jobsRouter from "./jobs.routes";
+import { Router } from 'express';
+import authRoutes from './auth.routes';
+import customersRoutes from './customers.routes';
+import jobsRouter from './jobs.routes';
+import documentsRouter from './documents.routes';
+import portalRouter from './portal.routes';
 
 const router = Router();
 
-router.use("/auth", authRoutes);
-router.use("/customers", customersRoutes);
-router.use("/jobs", jobsRouter);
+router.use('/auth', authRoutes);
+router.use('/customers', customersRoutes);
+router.use('/jobs', jobsRouter);
+router.use('/documents', documentsRouter);
+router.use('/portal', portalRouter);
 
 export default router;

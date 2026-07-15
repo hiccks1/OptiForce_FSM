@@ -1,15 +1,5 @@
 // packages/schemas/src/job.schema.ts
 import { z } from 'zod';
-import { DRIFTY_FILE_CONTRACT, DriftyLayer } from './company.schema';
-
-/**
- * Strict Layer Separation Contract
- * Enforces L2 Domain boundaries for Job Payload Mutations.
- */
-export const JOB_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: [DriftyLayer.L2_DOMAIN],
-} as const;
 
 /**
  * Minimal C2PA Compliant AI Manifest Tracking
