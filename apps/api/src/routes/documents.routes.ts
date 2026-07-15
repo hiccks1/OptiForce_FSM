@@ -1,5 +1,8 @@
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L3_INTEGRATION"],
-};
+import { Router } from 'express';
+import { listDocuments } from '../controllers/documents';
 
+const router = Router();
+
+router.get('/', listDocuments);
+
+export default router;

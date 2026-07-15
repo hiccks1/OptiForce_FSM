@@ -1,263 +1,233 @@
-export const DRIFTY_FILE_CONTRACT = {
-  driftyVersion: "1.0.0",
-  layers: ["L3_INTEGRATION"],
-};
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Layout from '../components/Layout';
+import { api, type CalendarEvent } from '../api/client';
+import { theme, statusColor } from '../theme';
 
-import React, { useEffect, useMemo, useState } from "react";
-import type { Visit } from "../types";
-import { api } from "@fsm/api";
-import { CalendarView } from "../components/CalendarView";
-import { Button, Card, Input, Pill } from "../components/ui";
+const TECHS = [
+  { id: 'tech_amir', name: 'Amir Kaplan' },
+  { id: 'tech_dana', name: 'Dana Ruiz' },
+  { id: 'tech_leo', name: 'Leo Chen' },
+];
 
-function isoRangeForMonth(anchor: Date) {
-  const start = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
-  end.setHours(23, 59, 59, 999);
-
-  return { from: start.toISOString(), to: end.toISOString() };
+function startOfWeek(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  x.setDate(x.getDate() - x.getDay());
+  return x;
+}
+function fmtTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+function toLocalInput(d: Date) {
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
 }
 
-export default function CalendarPage() {
-  const [anchor, setAnchor] = useState(() => new Date());
-  const [visits, setVisits] = useState<Visit[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type Editing =
+  | { mode: 'create'; date: Date }
+  | { mode: 'edit'; event: CalendarEvent }
+  | null;
 
-  const [techFilter, setTechFilter] = useState("");
+export default function Calendar() {
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [techFilter, setTechFilter] = useState('');
+  const [editing, setEditing] = useState<Editing>(null);
+  const [msg, setMsg] = useState('');
+  const [loadError, setLoadError] = useState('');
 
-  const [selected, setSelected] = useState<Visit | null>(null);
-  const [createSeed, setCreateSeed] = useState<{ startIso: string; endIso: string } | null>(null);
+  const days = useMemo(() => Array.from({ length: 7 }, (_, i) => new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i)), [weekStart]);
 
-  const range = useMemo(() => isoRangeForMonth(anchor), [anchor]);
-
-  async function refresh() {
-    setLoading(true);
-    setError(null);
-
-    const res = await api.listVisits({
-      from: range.from,
-      to: range.to,
-      technicianId: undefined,
-    });
-
-    setLoading(false);
-
-    if (!res.ok) {
-      setError(res.error);
+  const load = useCallback(async () => {
+    const start = days[0]!;
+    const end = new Date(days[6]!.getFullYear(), days[6]!.getMonth(), days[6]!.getDate() + 1);
+    const r = await api.listCalendar({ start: start.toISOString(), end: end.toISOString() });
+    if (r.ok) {
+      setEvents(r.data.events);
+      setLoadError('');
       return;
     }
-
-    const tf = techFilter.trim();
-    const filtered = tf ? res.data.filter((v) => (v.technicianId ?? "") === tf) : res.data;
-
-    setVisits(filtered);
-  }
+    setLoadError(r.error);
+  }, [days]);
 
   useEffect(() => {
-    void refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [range.from, range.to]);
+    load();
+  }, [load]);
+
+  const visible = techFilter ? events.filter((e) => e.technicianId === techFilter) : events;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background:
-          "radial-gradient(1200px 800px at 10% 10%, rgba(0,0,0,0.06), transparent), radial-gradient(900px 600px at 90% 0%, rgba(0,0,0,0.05), transparent), #f6f6f7",
-        padding: 20,
-      }}
+    <Layout
+      title="Schedule"
+      actions={
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <select value={techFilter} onChange={(e) => setTechFilter(e.target.value)} style={{ padding: '9px 10px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 13 }}>
+            <option value="">All technicians</option>
+            {TECHS.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+          <button onClick={() => setEditing({ mode: 'create', date: new Date() })} style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 16px', fontWeight: 600, cursor: 'pointer' }}>+ New visit</button>
+        </div>
+      }
     >
-      <div style={{ maxWidth: 1180, margin: "0 auto", display: "grid", gap: 14 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 12, color: "rgba(0,0,0,0.55)" }}>Scheduling</div>
-            <div style={{ fontSize: 24, fontWeight: 750, letterSpacing: -0.2 }}>Calendar</div>
-          </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <button onClick={() => setWeekStart(new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() - 7))} style={navBtn}>‹ Prev</button>
+        <button onClick={() => setWeekStart(startOfWeek(new Date()))} style={navBtn}>Today</button>
+        <button onClick={() => setWeekStart(new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 7))} style={navBtn}>Next ›</button>
+        <div style={{ fontWeight: 600, marginLeft: 8 }}>
+          {days[0]!.toLocaleDateString([], { month: 'short', day: 'numeric' })} – {days[6]!.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+        </div>
+      </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {loading ? <Pill>Loading…</Pill> : <Pill>{visits.length} events</Pill>}
-            <Button variant="ghost" onClick={() => setAnchor(new Date())}>
-              Today
-            </Button>
-            <Button variant="ghost" onClick={() => setAnchor(new Date(anchor.getFullYear(), anchor.getMonth() - 1, 1))}>
-              Prev
-            </Button>
-            <Button variant="ghost" onClick={() => setAnchor(new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1))}>
-              Next
-            </Button>
-          </div>
+      {loadError && <div style={{ color: theme.danger, fontSize: 13, marginBottom: 12 }}>{loadError}</div>}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 10 }}>
+        {days.map((d) => {
+          const isToday = d.toDateString() === new Date().toDateString();
+          const dayEvents = visible.filter((e) => new Date(e.start).toDateString() === d.toDateString()).sort((a, b) => +new Date(a.start) - +new Date(b.start));
+          return (
+            <div key={d.toISOString()} style={{ background: '#fff', border: `1px solid ${isToday ? theme.primary : theme.border}`, borderRadius: 12, minHeight: 340, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '10px 12px', borderBottom: `1px solid ${theme.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: 11, color: theme.muted, textTransform: 'uppercase' }}>{d.toLocaleDateString([], { weekday: 'short' })}</div>
+                  <div style={{ fontWeight: 700, color: isToday ? theme.primary : theme.text }}>{d.getDate()}</div>
+                </div>
+                <button onClick={() => setEditing({ mode: 'create', date: d })} title="Add visit" style={{ border: `1px solid ${theme.border}`, background: '#fff', borderRadius: 8, width: 26, height: 26, cursor: 'pointer', color: theme.primary, fontWeight: 700 }}>+</button>
+              </div>
+              <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {dayEvents.map((e) => (
+                  <button
+                    key={e.id}
+                    onClick={() => setEditing({ mode: 'edit', event: e })}
+                    style={{ textAlign: 'left', border: 'none', borderLeft: `3px solid ${statusColor[e.status] ?? theme.primary}`, background: `${statusColor[e.status] ?? theme.primary}12`, borderRadius: 8, padding: '7px 9px', cursor: 'pointer' }}
+                  >
+                    <div style={{ fontSize: 11, color: theme.muted }}>{fmtTime(e.start)}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.25 }}>{e.title}</div>
+                    <div style={{ fontSize: 11, color: theme.muted }}>{e.customerName}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {msg && <div style={{ marginTop: 14, color: theme.success, fontSize: 14 }}>{msg}</div>}
+
+      {editing && (
+        <VisitModal
+          editing={editing}
+          onClose={() => setEditing(null)}
+          onSaved={async (text) => {
+            setEditing(null);
+            setMsg(text);
+            await load();
+            setTimeout(() => setMsg(''), 3000);
+          }}
+        />
+      )}
+    </Layout>
+  );
+}
+
+const navBtn: React.CSSProperties = { border: `1px solid ${theme.border}`, background: '#fff', borderRadius: 10, padding: '8px 14px', cursor: 'pointer', fontSize: 13 };
+
+function VisitModal({ editing, onClose, onSaved }: { editing: NonNullable<Editing>; onClose: () => void; onSaved: (msg: string) => void }) {
+  const isEdit = editing.mode === 'edit';
+  const ev = editing.mode === 'edit' ? editing.event : null;
+
+  const defaultStart = ev ? new Date(ev.start) : (() => { const d = new Date(editing.mode === 'create' ? editing.date : new Date()); d.setHours(9, 0, 0, 0); return d; })();
+  const defaultEnd = ev ? new Date(ev.end) : new Date(defaultStart.getTime() + 2 * 3600000);
+
+  const [title, setTitle] = useState(ev?.title ?? '');
+  const [customerName, setCustomerName] = useState(ev?.customerName ?? '');
+  const [tech, setTech] = useState(ev?.technicianId ?? '');
+  const [start, setStart] = useState(toLocalInput(defaultStart));
+  const [end, setEnd] = useState(toLocalInput(defaultEnd));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function save() {
+    setBusy(true);
+    setError('');
+    const startIso = new Date(start).toISOString();
+    const endIso = new Date(end).toISOString();
+    const techName = TECHS.find((t) => t.id === tech)?.name;
+
+    if (isEdit && ev) {
+      const r = await api.updateVisit(ev.jobId, ev.id, { title, start: startIso, end: endIso, technicianId: tech || undefined, technicianName: techName });
+      setBusy(false);
+      if (!r.ok) return setError(r.error);
+      onSaved('Visit updated.');
+    } else {
+      if (!customerName.trim()) { setBusy(false); return setError('Customer name is required'); }
+      const r = await api.createJob({ title: title || 'Service visit', customerName, assignedTechnicianId: tech || undefined, start: startIso, end: endIso });
+      setBusy(false);
+      if (!r.ok) return setError(r.error);
+      onSaved('Visit scheduled.');
+    }
+  }
+
+  async function cancel() {
+    if (!ev) return;
+    setBusy(true);
+    const r = await api.cancelVisit(ev.jobId, ev.id);
+    setBusy(false);
+    if (!r.ok) return setError(r.error);
+    onSaved('Visit cancelled.');
+  }
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,18,40,0.45)', display: 'grid', placeItems: 'center', zIndex: 50 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: 440, background: '#fff', borderRadius: 16, padding: 24 }}>
+        <h2 style={{ margin: '0 0 16px', fontSize: 19 }}>{isEdit ? 'Edit visit' : 'Schedule a visit'}</h2>
+
+        {!isEdit && (
+          <Field label="Customer">
+            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer name" style={inputStyle} />
+          </Field>
+        )}
+        {isEdit && <div style={{ marginBottom: 12, fontSize: 13, color: theme.muted }}>Customer: <strong style={{ color: theme.text }}>{ev?.customerName}</strong></div>}
+
+        <Field label="Visit title">
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. AC diagnostic" style={inputStyle} />
+        </Field>
+        <Field label="Technician">
+          <select value={tech} onChange={(e) => setTech(e.target.value)} style={inputStyle}>
+            <option value="">Unassigned</option>
+            {TECHS.map((t) => (<option key={t.id} value={t.id}>{t.name}</option>))}
+          </select>
+        </Field>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <Field label="Start"><input type="datetime-local" value={start} onChange={(e) => setStart(e.target.value)} style={inputStyle} /></Field>
+          <Field label="End"><input type="datetime-local" value={end} onChange={(e) => setEnd(e.target.value)} style={inputStyle} /></Field>
         </div>
 
-        <Card style={{ padding: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 320 }}>
-                <Input
-                  placeholder="Filter by technicianId (optional)"
-                  value={techFilter}
-                  onChange={(e) => setTechFilter(e.target.value)}
-                />
-              </div>
-              <Button variant="ghost" onClick={() => void refresh()}>
-                Refresh
-              </Button>
-            </div>
+        {error && <div style={{ color: theme.danger, fontSize: 13, marginTop: 4 }}>{error}</div>}
 
-            {error ? <div style={{ color: "#b00020", fontSize: 13 }}>{error}</div> : null}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
+          <div>
+            {isEdit && <button onClick={cancel} disabled={busy} style={{ ...btnGhost, color: theme.danger, borderColor: '#f0c9c9' }}>Cancel visit</button>}
           </div>
-        </Card>
-
-        <CalendarView
-          visits={visits}
-          onSelectVisit={(v) => setSelected(v)}
-          onCreateAt={(startIso, endIso) => setCreateSeed({ startIso, endIso })}
-        />
-
-        {(selected || createSeed) ? (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0,0,0,0.25)",
-              display: "grid",
-              placeItems: "center",
-              padding: 18,
-            }}
-            onMouseDown={() => {
-              setSelected(null);
-              setCreateSeed(null);
-            }}
-          >
-            <div style={{ width: "min(720px, 96vw)" }} onMouseDown={(e) => e.stopPropagation()}>
-              <Card style={{ padding: 14 }}>
-                <div style={{ display: "grid", gap: 10 }}>
-                  <div style={{ fontSize: 18, fontWeight: 750 }}>{selected ? "Edit visit" : "New visit"}</div>
-
-                  <div style={{ display: "grid", gap: 10, gridTemplateColumns: "1fr 1fr" }}>
-                    <div>
-                      <div style={{ fontSize: 12, color: "rgba(0,0,0,0.55)", marginBottom: 6 }}>Start</div>
-                      <Input
-                        value={(selected?.scheduledStart ?? createSeed?.startIso) ?? ""}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          if (selected) setSelected({ ...selected, scheduledStart: v });
-                          else if (createSeed) setCreateSeed({ ...createSeed, startIso: v });
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 12, color: "rgba(0,0,0,0.55)", marginBottom: 6 }}>End</div>
-                      <Input
-                        value={(selected?.scheduledEnd ?? createSeed?.endIso) ?? ""}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          if (selected) setSelected({ ...selected, scheduledEnd: v });
-                          else if (createSeed) setCreateSeed({ ...createSeed, endIso: v });
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: "grid", gap: 10, gridTemplateColumns: "1fr 1fr" }}>
-                    <div>
-                      <div style={{ fontSize: 12, color: "rgba(0,0,0,0.55)", marginBottom: 6 }}>Technician ID</div>
-                      <Input
-                        placeholder="optional"
-                        value={selected?.technicianId ?? ""}
-                        onChange={(e) => {
-                          if (!selected) return;
-                          setSelected({ ...selected, technicianId: e.target.value || undefined });
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 12, color: "rgba(0,0,0,0.55)", marginBottom: 6 }}>Title</div>
-                      <Input
-                        placeholder="Visit"
-                        value={selected?.title ?? ""}
-                        onChange={(e) => {
-                          if (!selected) return;
-                          setSelected({ ...selected, title: e.target.value });
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4 }}>
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setSelected(null);
-                        setCreateSeed(null);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-
-                    {selected ? (
-                      <Button
-                        onClick={async () => {
-                          const jobId = selected.jobId;
-                          if (!jobId) {
-                            setError("Missing jobId on visit");
-                            return;
-                          }
-
-                          const res = await api.updateVisit(
-                            { jobId, visitId: selected.id },
-                            {
-                              scheduledStart: selected.scheduledStart,
-                              scheduledEnd: selected.scheduledEnd,
-                              technicianId: selected.technicianId,
-                              title: selected.title,
-                              notes: selected.notes,
-                              customerName: selected.customerName,
-                              address: selected.address,
-                            }
-                          );
-
-                          if (!res.ok) {
-                            setError(res.error);
-                            return;
-                          }
-                          setSelected(null);
-                          await refresh();
-                        }}
-                      >
-                        Save
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={async () => {
-                          if (!createSeed) return;
-
-                          const res = await api.createVisit({
-                            scheduledStart: createSeed.startIso,
-                            scheduledEnd: createSeed.endIso,
-                          });
-
-                          if (!res.ok) {
-                            setError(res.error);
-                            return;
-                          }
-                          setCreateSeed(null);
-                          await refresh();
-                        }}
-                      >
-                        Create
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={onClose} style={btnGhost}>Close</button>
+            <button onClick={save} disabled={busy} style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 18px', fontWeight: 600, cursor: 'pointer' }}>{busy ? 'Saving…' : 'Save'}</button>
           </div>
-        ) : null}
+        </div>
       </div>
     </div>
   );
 }
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+
+const inputStyle: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '10px 11px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14 };
+const btnGhost: React.CSSProperties = { border: `1px solid ${theme.border}`, background: '#fff', borderRadius: 10, padding: '10px 16px', cursor: 'pointer', fontSize: 14 };

@@ -1,238 +1,169 @@
-import type { ApiResult, Visit, Customer } from "../types";
+// apps/web/src/api/client.ts — the single API client used by every page.
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
+const COMPANY_ID = 'comp_demo_123';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 
 async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
+  const sep = path.includes('?') ? '&' : '?';
+  const url = `${API_BASE}${path}${sep}companyId=${COMPANY_ID}`;
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        ...(init?.headers ?? {}),
-      },
+    const res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json', 'x-company-id': COMPANY_ID, ...(init?.headers ?? {}) },
       ...init,
     });
-
     const text = await res.text();
     const json = text ? JSON.parse(text) : null;
-
     if (!res.ok) {
-      return {
-        ok: false,
-        status: res.status,
-        error: (json && (json.error || json.message)) || `Request failed (${res.status})`,
-      };
+      return { ok: false, status: res.status, error: (json && (json.error || json.message)) || `Request failed (${res.status})` };
     }
-
     return { ok: true, data: json as T };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Network error" };
+    return { ok: false, error: e instanceof Error ? e.message : 'Network error' };
   }
 }
 
-type CalendarResponse = {
+export type Address = { line1?: string; city?: string; state?: string; postalCode?: string };
+
+export type CalendarEvent = {
+  id: string;
+  jobId: string;
+  title: string;
+  technicianId: string | null;
+  technicianName: string | null;
   start: string;
   end: string;
-  count: number;
-  events: Array<{
-    id: string; // visitId
-    jobId: string;
-    title?: string;
-    technicianId?: string | null;
-    start?: string | null;
-    end?: string | null;
-    customerName?: string | null;
-    address?: unknown;
-    raw?: unknown;
-  }>;
+  status: string;
+  customerName: string;
+  address: Address | null;
 };
 
-type CreateJobVisitResponse = { jobId: string; visitId: string };
+export type Customer = {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: Address;
+  jobCount: number;
+  upcomingVisits: number;
+};
+
+export type JobSummary = {
+  id: string;
+  title: string;
+  serviceType?: string;
+  priority?: string;
+  status: string;
+  customer: { id: string; name: string };
+  visitCount: number;
+  nextVisit: string | null;
+  createdAt: string;
+};
+
+export type DocumentRow = {
+  id: string;
+  title: string | null;
+  status: string;
+  mimeType: string | null;
+  fileSize: number | null;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type User = { id: string; email: string; name: string | null; role: string };
+
+export type PortalConfig = {
+  companyName: string;
+  title: string;
+  description: string;
+  primaryColor: string;
+  allowReschedule: boolean;
+};
 
 export const api = {
-  // =========================
-  // VISITS (Calendar)
-  // =========================
-
-  async listVisits(params: { from: string; to: string; technicianId?: string }) {
-    const q = new URLSearchParams({
-      companyId: "comp_dev_123",
-      start: params.from,
-      end: params.to,
-      ...(params.technicianId ? { technicianId: params.technicianId } : {}),
-    }).toString();
-
-    const res = await request<CalendarResponse>(`/jobs/calendar?${q}`);
-    if (!res.ok) return res;
-
-    const mapped: Visit[] = (res.data.events ?? []).map((e) => {
-      return {
-        id: e.id, // visitId
-        jobId: e.jobId, // jobId
-        scheduledStart: e.start ?? "",
-        scheduledEnd: e.end ?? "",
-        technicianId: e.technicianId ?? undefined,
-        title: e.title ?? "Visit",
-        notes: undefined,
-        customerName: e.customerName ?? undefined,
-        address: e.address as any,
-        customerId: undefined,
-        status: "SCHEDULED",
-      };
+  login(email: string) {
+    return request<{ token: string; user: User & { companyId: string } }>(`/auth/login`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
     });
-
-    const tf = params.technicianId?.trim();
-    const filtered = tf ? mapped.filter((v) => (v.technicianId ?? "") === tf) : mapped;
-
-    return { ok: true, data: filtered } as ApiResult<Visit[]>;
+  },
+  listUsers() {
+    return request<{ users: User[] }>(`/auth/users`);
   },
 
-  async createVisit(input: {
-    scheduledStart: string;
-    scheduledEnd: string;
-    technicianId?: string;
-    title?: string;
+  listCalendar(params: { start: string; end: string }) {
+    return request<{ events: CalendarEvent[]; count: number }>(
+      `/jobs/calendar?start=${encodeURIComponent(params.start)}&end=${encodeURIComponent(params.end)}`,
+    );
+  },
+  createJob(input: {
+    title: string;
+    serviceType?: string;
+    customerName: string;
+    customerEmail?: string;
+    customerPhone?: string;
+    assignedTechnicianId?: string;
     notes?: string;
-    customerName?: string;
-    address?: Visit["address"];
+    start: string;
+    end: string;
+    serviceAddress?: Address;
   }) {
-    const payload: Record<string, unknown> = {
-      title: input.title ?? "Visit",
-      customerName: input.customerName ?? null,
-      notes: input.notes ?? null,
-      assignedTechnicianId: input.technicianId ?? null,
-      scheduledWindow: { start: input.scheduledStart, end: input.scheduledEnd },
-      serviceAddress: input.address ?? null,
-    };
-
-    const q = new URLSearchParams({ companyId: "comp_dev_123" }).toString();
-
-    const created = await request<CreateJobVisitResponse>(`/jobs?${q}`, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-
-    if (!created.ok) return created as any;
-
-    // Return a Visit-shaped object so UI can keep working without refetch,
-    // but we still recommend the caller refresh().
-    const v: Visit = {
-      id: created.data.visitId,
-      jobId: created.data.jobId,
-      scheduledStart: input.scheduledStart,
-      scheduledEnd: input.scheduledEnd,
-      technicianId: input.technicianId,
-      title: input.title ?? "Visit",
-      notes: input.notes,
-      customerName: input.customerName,
-      address: input.address,
-      status: "SCHEDULED",
-    };
-
-    return { ok: true, data: v } as ApiResult<Visit>;
-  },
-
-  async updateVisit(
-    visit: { jobId: string; visitId: string },
-    input: {
-      scheduledStart: string;
-      scheduledEnd: string;
-      technicianId?: string;
-      title?: string;
-      notes?: string;
-      customerName?: string;
-      address?: unknown;
-    }
-  ) {
-    const q = new URLSearchParams({ companyId: "comp_dev_123" }).toString();
-
-    return request<{ ok: true }>(`/jobs/${visit.jobId}/visits/${visit.visitId}?${q}`, {
-      method: "PATCH",
+    return request<{ jobId: string; visitId: string | null }>(`/jobs`, {
+      method: 'POST',
       body: JSON.stringify({
-        start: input.scheduledStart,
-        end: input.scheduledEnd,
-        technicianId: input.technicianId ?? undefined,
-        title: input.title ?? undefined,
-        notes: input.notes ?? undefined,
-        customerName: input.customerName ?? undefined,
-        address: input.address,
+        title: input.title,
+        serviceType: input.serviceType,
+        customerName: input.customerName,
+        customerEmail: input.customerEmail,
+        customerPhone: input.customerPhone,
+        assignedTechnicianId: input.assignedTechnicianId,
+        notes: input.notes,
+        serviceAddress: input.serviceAddress,
+        scheduledWindow: { start: input.start, end: input.end },
       }),
     });
   },
-
-  async cancelVisit(_visitId: string, _input: { reason: string }) {
-    return { ok: false, error: "Cancel not implemented in MVP yet" } as ApiResult<Visit>;
-  },
-
-  // =========================
-  // CUSTOMER PORTAL
-  // =========================
-
-  async portalUpcoming() {
-    const from = new Date();
-    const to = new Date(from);
-    to.setDate(to.getDate() + 60);
-
-    const q = new URLSearchParams({
-      companyId: "comp_dev_123",
-      start: from.toISOString(),
-      end: to.toISOString(),
-    }).toString();
-
-    const res = await request<CalendarResponse>(`/jobs/calendar?${q}`);
-    if (!res.ok) return res;
-
-    const mapped: Visit[] = (res.data.events ?? []).map((e) => {
-      return {
-        id: e.id, // visitId
-        jobId: e.jobId,
-        scheduledStart: e.start ?? "",
-        scheduledEnd: e.end ?? "",
-        technicianId: e.technicianId ?? undefined,
-        title: e.title ?? "Visit",
-        notes: undefined,
-        customerName: e.customerName ?? undefined,
-        address: e.address as any,
-        customerId: undefined,
-        status: "SCHEDULED",
-      };
-    });
-
-    const now = Date.now();
-    const upcoming = mapped
-      .filter((v) => {
-        const t = +new Date(v.scheduledStart);
-        return Number.isFinite(t) && t >= now;
-      })
-      .sort((a, b) => +new Date(a.scheduledStart) - +new Date(b.scheduledStart));
-
-    return { ok: true, data: { visits: upcoming } } as ApiResult<{ visits: Visit[] }>;
-  },
-
-  async portalReschedule(visit: { jobId: string; visitId: string }, input: { scheduledStart: string; scheduledEnd: string }) {
-    const q = new URLSearchParams({ companyId: "demo" }).toString();
-
-    return request<{ ok: true }>(`/jobs/${visit.jobId}/visits/${visit.visitId}?${q}`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        start: input.scheduledStart,
-        end: input.scheduledEnd,
-      }),
-    });
-  },
-
-  async portalCancel(_visitId: string, _input: { reason: string }) {
-    return { ok: false, error: "Cancel not implemented in MVP yet" } as ApiResult<Visit>;
-  },
-
-  // =========================
-  // CUSTOMERS
-  // =========================
-
-  async createCustomer(input: { name: string; email?: string; phone?: string }) {
-    return request<Customer>(`/customers`, {
-      method: "POST",
+  addVisit(jobId: string, input: { title?: string; technicianId?: string; technicianName?: string; start: string; end: string; notes?: string }) {
+    return request<{ jobId: string; visitId: string }>(`/jobs/${jobId}/visits`, {
+      method: 'POST',
       body: JSON.stringify(input),
     });
+  },
+  updateVisit(jobId: string, visitId: string, input: Record<string, unknown>) {
+    return request<{ ok: true }>(`/jobs/${jobId}/visits/${visitId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(input),
+    });
+  },
+  cancelVisit(jobId: string, visitId: string) {
+    return request<{ ok: true }>(`/jobs/${jobId}/visits/${visitId}`, { method: 'DELETE' });
+  },
+
+  listJobs() {
+    return request<{ jobs: JobSummary[] }>(`/jobs`);
+  },
+
+  listCustomers() {
+    return request<{ customers: Customer[] }>(`/customers`);
+  },
+  createCustomer(input: { name: string; email?: string; phone?: string; serviceType?: string; address?: Address }) {
+    return request<{ id: string; name: string }>(`/customers`, { method: 'POST', body: JSON.stringify(input) });
+  },
+
+  listDocuments() {
+    return request<{ documents: DocumentRow[] }>(`/documents`);
+  },
+
+  portalConfig() {
+    return request<PortalConfig>(`/portal/config`);
+  },
+  portalUpcoming() {
+    return request<{ visits: CalendarEvent[] }>(`/portal/upcoming`);
+  },
+  portalReschedule(jobId: string, visitId: string, input: { start: string; end: string }) {
+    return request<{ ok: true }>(`/jobs/${jobId}/visits/${visitId}`, { method: 'PATCH', body: JSON.stringify(input) });
+  },
+  portalCancel(jobId: string, visitId: string) {
+    return request<{ ok: true }>(`/jobs/${jobId}/visits/${visitId}`, { method: 'DELETE' });
   },
 };
