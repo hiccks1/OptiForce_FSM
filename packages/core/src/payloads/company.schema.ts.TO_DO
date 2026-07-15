@@ -1,0 +1,133 @@
+```ts
+// packages/config/src/company.schema.ts
+
+/*
+  Canonical Company Schema (FINAL)
+  ================================
+
+  Purpose:
+  - Single source of truth for company-specific behavior
+  - Schema-first, config-driven, additive-only
+  - Designed to evolve without breaking existing companies
+
+  Core Laws:
+  - No workflow logic
+  - No UI logic
+  - No customer-specific code paths
+  - Everything optional unless structurally required
+*/
+
+// =====================================================
+// ROOT COMPANY SCHEMA
+// =====================================================
+
+export interface CompanySchema {
+  // ---------------------------------
+  // VERSIONING & IDENTITY
+  // ---------------------------------
+
+  schemaVersion: '1.0';
+
+  metadata?: {
+    name?: string;
+    description?: string;
+    tags?: string[]; // residential, commercial, hvac-only, etc.
+  };
+
+  // ---------------------------------
+  // DECLARED CAPABILITIES (INTENT ONLY)
+  // ---------------------------------
+
+  capabilities?: {
+    contracts?: boolean;
+    changeOrders?: boolean;
+    documents?: boolean;
+    payments?: boolean;
+    financing?: boolean;
+    customerPortal?: boolean;
+    aiAssist?: boolean;
+  };
+
+  // ---------------------------------
+  // LOCALIZATION & REGIONAL SETTINGS
+  // ---------------------------------
+
+  localization?: {
+    timezone?: string;
+    locale?: string;
+    currency?: string;
+  };
+
+  // ---------------------------------
+  // VALIDATION DEFAULTS (HINTS ONLY)
+  // ---------------------------------
+
+  validationDefaults?: {
+    requiredByDefault?: boolean;
+    strictEnums?: boolean;
+    dateFormat?: string;
+  };
+
+  // ---------------------------------
+  // UI HINTS (NON-ENFORCING)
+  // ---------------------------------
+
+  uiHints?: {
+    labelOverrides?: Record<string, string>;
+    helpText?: Record<string, string>;
+  };
+
+  // ---------------------------------
+  // AUDIT & COMPLIANCE PREFERENCES
+  // ---------------------------------
+
+  audit?: {
+    logAI?: boolean;
+    logCustomerActions?: boolean;
+    retentionDays?: number;
+  };
+
+  // ---------------------------------
+  // DOMAIN SCHEMAS (DECLARATIVE ONLY)
+  // ---------------------------------
+
+  documents?: DocumentDefinitions;
+  contracts?: ContractDefinitions;
+  changeOrders?: ChangeOrderDefinitions;
+  customerPortal?: CustomerPortalSchema;
+
+  // ---------------------------------
+  // EXTENSION ESCAPE HATCH
+  // ---------------------------------
+
+  extensions?: Record<string, unknown>;
+}
+
+// =====================================================
+// PLACEHOLDER DOMAIN TYPES (DEFINED ELSEWHERE)
+// =====================================================
+
+export interface DocumentDefinitions {
+  [documentType: string]: unknown;
+}
+
+export interface ContractDefinitions {
+  [contractType: string]: unknown;
+}
+
+export interface ChangeOrderDefinitions {
+  [changeOrderType: string]: unknown;
+}
+
+// Imported from Phase 2.5
+export interface CustomerPortalSchema {
+  schemaVersion: '1.0';
+  access: unknown;
+  navigation: unknown;
+  pages: unknown;
+  documents: unknown;
+  actions?: unknown;
+  ui?: unknown;
+  audit?: unknown;
+}
+```

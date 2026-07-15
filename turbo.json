@@ -1,0 +1,30 @@
+{
+  "tasks": {
+    "clean": {
+      "cache": false
+    },
+    "db:generate": {
+      "inputs": ["prisma/schema.prisma"],
+      "cache": false
+    },
+    "db:studio": {
+      "cache": false,
+      "persistent": true
+      },
+    "db:migrate": {
+      "cache": false
+    },
+    "build": {
+      "dependsOn": ["^build", "^db:generate"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "dependsOn": ["^db:generate"],
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
+    "test": {},
+    "test:coverage": {}
+  }
+}

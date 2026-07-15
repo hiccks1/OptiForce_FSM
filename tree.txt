@@ -1,0 +1,69 @@
+.
+├── apps
+│   ├── api
+│   │   └── src
+│   │       ├── config
+│   │       ├── controllers
+│   │       ├── middleware
+│   │       ├── routes
+│   │       └── services
+│   ├── web
+│   │   └── src
+│   │       ├── api
+│   │       ├── app
+│   │       ├── components
+│   │       ├── hooks
+│   │       └── pages
+│   └── worker
+│       └── src
+│           ├── processors
+│           └── queues
+├── drifty
+├── infra
+│   ├── docker
+│   │   └── scripts
+│   ├── minio
+│   ├── fsm
+│   └── redis
+├── packages
+│   ├── ai
+│   │   └── src
+│   │       ├── memory
+│   │       ├── prompts
+│   │       ├── retrievers
+│   │       └── tools
+│   ├── core
+│   │   └── src
+│   │       ├── audit
+│   │       ├── config
+│   │       ├── context
+│   │       ├── domain
+│   │       ├── errors
+│   │       ├── events
+│   │       ├── payloads
+│   │       ├── permissions
+│   │       ├── schemas
+│   │       ├── services
+│   │       ├── services.BAK.20260223_101158
+│   │       └── types
+│   ├── db
+│   │   ├── prisma
+│   │   ├── scripts
+│   │   └── src
+│   │       └── generated
+│   ├── logger
+│   │   └── src
+│   ├── queue
+│   │   └── src
+│   ├── schemas
+│   │   └── src
+│   │       └── jobData
+│   └── storage
+│       └── src
+└── scripts
+    ├── migrate
+    ├── refactor
+    ├── seed
+    └── setup
+
+67 directories

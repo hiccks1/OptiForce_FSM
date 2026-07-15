@@ -1,0 +1,273 @@
+// ============================================
+// /FSM/packages/db/prisma/schema.prisma
+// Canonical Database Engine Layer
+// ============================================
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  // Fixed: Removed extendedIndexes and added Prisma 7 required flags
+  previewFeatures = ["driverAdapters", "typedSql"] 
+}
+
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MANAGER
+  CSR
+  FIELD
+  CUSTOMER
+  SYSTEM
+}
+
+enum ActorType {
+  HUMAN
+  SYSTEM
+  AI
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+// ============================================
+// CORE PLATFORM TENANCY (EVERYONE RUNS THIS)
+// ============================================
+
+model Company {
+  id        String  @id @default(cuid(2))
+  name      String
+  subdomain String? @unique
+
+  // Structural Core Relations
+  users        User[]
+  jobs         Job[]
+  contracts    Contract[]
+  documents    Document[]
+  configs      CompanyConfig[]
+  auditLogs    AuditLog[]
+  aiActionLogs AIActionLog[]
+
+  // Immutability Checksums
+  deletedAt DateTime?
+  deletedBy String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@map("companies")
+}
+
+model CompanyConfig {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  version     Int
+  schema      Json    @db.JsonB // Holds active tier flags, disabled toggles, and feature scopes
+  contentHash String? // Integrity hash of version configuration
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  createdBy String?
+
+  @@unique([companyId, version])
+  @@index([companyId, isActive])
+  @@map("company_configs")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  email     String   @unique
+  name      String?
+  role      UserRole
+
+  deletedAt DateTime?
+  deletedBy String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([companyId, deletedAt])
+  @@index([companyId, role])
+  @@map("users")
+}
+
+// ============================================
+// HIGHLY FLEXIBLE PAYLOADS (TIER OPT-IN / OPT-OUT)
+// ============================================
+
+model Job {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  data Json @db.JsonB // Modular layout: Basic tier uses 3 keys, Enterprise populates AI context maps
+
+  contentHash  String?
+  previousHash String?
+  deletedAt    DateTime?
+  deletedBy    String?
+  createdAt    DateTime  @default(now())
+  createdBy    String?
+  updatedAt    DateTime  @updatedAt
+  updatedBy    String?
+
+  @@index([companyId, deletedAt])
+  @@index([createdAt])
+  @@map("jobs")
+}
+
+model Contract {
+  id             String  @id @default(cuid())
+  companyId      String
+  company        Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  data Json @db.JsonB // Houses variable multi-contract types or cryptohash signatures
+
+  contentHash    String?
+  previousHash   String?
+  c2paManifestId String?
+
+  deletedAt DateTime?
+  deletedBy String?
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime  @updatedAt
+  updatedBy String?
+
+  @@index([companyId, deletedAt])
+  @@index([createdAt])
+  @@map("contracts")
+}
+
+model Document {
+  id          String         @id @default(cuid())
+  companyId   String
+  company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title       String?
+  status      DocumentStatus @default(DRAFT)
+  metadata    Json           @db.JsonB
+  storagePath String?
+  storageUrl  String?
+  mimeType    String?
+  fileSize    Int?
+
+  contentHash    String?
+  previousHash   String?
+  c2paManifestId String?
+
+  deletedAt DateTime?
+  deletedBy String?
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime  @updatedAt
+  updatedBy String?
+
+  @@index([companyId, deletedAt])
+  @@index([companyId, status])
+  @@map("documents")
+}
+
+// ============================================
+// COMPLIANCE FORENSICS (DYNAMIC ON/OFF VIA CODE)
+// ============================================
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  companyId      String
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  entityType     String
+  entityId       String
+  action         String
+  actorId        String?
+  actorType      String   @default("HUMAN")
+  occurredAt     DateTime @default(now())
+  beforeHash     String?
+  afterHash      String
+  prevRecordHash String?
+  beforeState    Json?    @db.JsonB
+  afterState     Json?    @db.JsonB
+  payload        Json     @db.JsonB
+  ipAddress      String?
+  userAgent      String?
+  requestId      String?
+
+  @@index([companyId, entityType, entityId])
+  @@index([companyId, occurredAt])
+  @@map("audit_logs")
+}
+
+model AIActionLog {
+  id          String    @id @default(cuid())
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  actorId     String?
+  actorType   ActorType
+  action      String
+  model       String?
+  version     String?
+  input       Json      @db.JsonB
+  outcome     Json      @db.JsonB
+  allowed     Boolean
+  reason      String?
+  confidence  Float?
+  contentHash String?
+  createdAt   DateTime  @default(now())
+
+  @@index([companyId, actorType])
+  @@index([companyId, createdAt])
+  @@map("ai_action_logs")
+}
+
+model C2PAManifest {
+  id           String    @id @default(cuid())
+  companyId    String
+  entityType   String
+  entityId     String
+  manifestJson Json      @db.JsonB
+  signature    String?
+  signedAt     DateTime?
+  signedBy     String?
+  isVerified   Boolean   @default(false)
+  verifiedAt   DateTime?
+  verifiedBy   String?
+  createdAt    DateTime  @default(now())
+
+  @@unique([entityType, entityId])
+  @@map("c2pa_manifests")
+}
+
+// ============================================
+// SYSTEM ACCELERATION MAP
+// ============================================
+
+model HotPathColumn {
+  id         String @id @default(cuid())
+  companyId  String
+  tableName  String
+  columnName String
+  jsonPath   String
+  dataType   String
+
+  isIndexed Boolean @default(false)
+  indexName String?
+  usage     Json?   @db.JsonB
+
+  createdAt DateTime @default(now())
+  createdBy String?
+
+  @@unique([companyId, tableName, columnName])
+  @@index([companyId, tableName])
+  @@map("hot_path_columns")
+}

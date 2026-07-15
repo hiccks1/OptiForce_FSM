@@ -1,0 +1,18 @@
+tunnel: b9593de7-b56d-47e7-b08e-ee652b6e8ab1
+credentials-file: /home/phil/.cloudflared/b9593de7-b56d-47e7-b08e-ee652b6e8ab1.json
+
+ingress:
+  # 1. Map your web frontend entry layer (Vite defaults to 5173)
+  - hostname: optiforce.simpexair.com
+    service: http://localhost:5173
+
+  # 2. Catch-all wildcard to allow variable tenant subdomains (://yourdomain.com)
+  - hostname: "*.simpexair.com"
+    service: http://localhost:5173
+
+  # 3. Map your backend API endpoints layer
+  - hostname: api.simpexair.com
+    service: http://localhost:8080
+
+  # 4. Mandatory fallback catch-all rule if no conditions match
+  - service: http_status:404
