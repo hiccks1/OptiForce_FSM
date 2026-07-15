@@ -28,6 +28,12 @@ declare global {
   }
 }
 
+// Auto-creating a tenant from an arbitrary client-supplied subdomain lets any
+// caller mint/enumerate tenants. Only allow that convenience in non-production.
+const ALLOW_TENANT_AUTOPROVISION =
+  process.env.ALLOW_TENANT_AUTOPROVISION === 'true' ||
+  (process.env.ALLOW_TENANT_AUTOPROVISION !== 'false' && process.env.NODE_ENV !== 'production');
+
 async function resolveCompanyId(raw: string): Promise<string> {
   const v = raw.trim();
   if (!v) throw new Error('Missing companyId');
@@ -35,13 +41,22 @@ async function resolveCompanyId(raw: string): Promise<string> {
   // If it looks like a real Company.id (cuid-ish), use it directly
   if (v.length >= 20) return v;
 
-  // Otherwise treat it as subdomain ("demo", etc.) and upsert for MVP convenience
-  const company = await prisma.company.upsert({
+  // Otherwise treat it as a subdomain ("demo", etc.).
+  if (ALLOW_TENANT_AUTOPROVISION) {
+    const company = await prisma.company.upsert({
+      where: { subdomain: v },
+      update: {},
+      create: { name: `${v} Company`, subdomain: v },
+      select: { id: true },
+    });
+    return company.id;
+  }
+
+  const company = await prisma.company.findUnique({
     where: { subdomain: v },
-    update: {},
-    create: { name: `${v} Company`, subdomain: v },
     select: { id: true },
   });
+  if (!company) throw new Error('Unknown tenant');
 
   return company.id;
 }
