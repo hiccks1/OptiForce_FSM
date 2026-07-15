@@ -9,6 +9,8 @@
     "init-tenant": "./scripts/setup/init.sh",
     "clean": "pnpm turbo daemon clean && turbo clean",
     "start": "./scripts/run.sh start",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
     "drifty": "tsx ./drifty/drifty-validate.ts .",
     "db:generate": "turbo run db:generate --filter=@fsm/db",
     "db:migrate": "turbo run db:migrate --filter=@fsm/db",
