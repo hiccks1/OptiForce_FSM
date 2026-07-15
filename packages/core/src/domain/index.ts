@@ -12,6 +12,9 @@
 // - Only pure functions and types
 // ============================================
 
+// Shared Domain Utilities
+export * from './shared';
+
 // Job Domain
 export * from './job';
 

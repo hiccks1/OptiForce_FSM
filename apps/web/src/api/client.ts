@@ -49,6 +49,24 @@ type CalendarResponse = {
 
 type CreateJobVisitResponse = { jobId: string; visitId: string };
 
+function mapCalendarEventsToVisits(
+  events: CalendarResponse["events"] | undefined
+): Visit[] {
+  return (events ?? []).map((e) => ({
+    id: e.id, // visitId
+    jobId: e.jobId, // jobId
+    scheduledStart: e.start ?? "",
+    scheduledEnd: e.end ?? "",
+    technicianId: e.technicianId ?? undefined,
+    title: e.title ?? "Visit",
+    notes: undefined,
+    customerName: e.customerName ?? undefined,
+    address: e.address as any,
+    customerId: undefined,
+    status: "SCHEDULED",
+  }));
+}
+
 export const api = {
   // =========================
   // VISITS (Calendar)
@@ -65,21 +83,7 @@ export const api = {
     const res = await request<CalendarResponse>(`/jobs/calendar?${q}`);
     if (!res.ok) return res;
 
-    const mapped: Visit[] = (res.data.events ?? []).map((e) => {
-      return {
-        id: e.id, // visitId
-        jobId: e.jobId, // jobId
-        scheduledStart: e.start ?? "",
-        scheduledEnd: e.end ?? "",
-        technicianId: e.technicianId ?? undefined,
-        title: e.title ?? "Visit",
-        notes: undefined,
-        customerName: e.customerName ?? undefined,
-        address: e.address as any,
-        customerId: undefined,
-        status: "SCHEDULED",
-      };
-    });
+    const mapped = mapCalendarEventsToVisits(res.data.events);
 
     const tf = params.technicianId?.trim();
     const filtered = tf ? mapped.filter((v) => (v.technicianId ?? "") === tf) : mapped;
@@ -182,21 +186,7 @@ export const api = {
     const res = await request<CalendarResponse>(`/jobs/calendar?${q}`);
     if (!res.ok) return res;
 
-    const mapped: Visit[] = (res.data.events ?? []).map((e) => {
-      return {
-        id: e.id, // visitId
-        jobId: e.jobId,
-        scheduledStart: e.start ?? "",
-        scheduledEnd: e.end ?? "",
-        technicianId: e.technicianId ?? undefined,
-        title: e.title ?? "Visit",
-        notes: undefined,
-        customerName: e.customerName ?? undefined,
-        address: e.address as any,
-        customerId: undefined,
-        status: "SCHEDULED",
-      };
-    });
+    const mapped = mapCalendarEventsToVisits(res.data.events);
 
     const now = Date.now();
     const upcoming = mapped
