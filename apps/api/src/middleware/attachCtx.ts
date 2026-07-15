@@ -88,6 +88,6 @@ export async function attachCtx(req: Request, res: Response, next: NextFunction)
 
     next();
   } catch (err) {
-    res.status(400).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    next(err);
   }
 }

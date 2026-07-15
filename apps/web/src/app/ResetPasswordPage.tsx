@@ -18,8 +18,16 @@ export default function ResetPasswordPage() {
       await axios.post("/api/password-reset/reset", { token, password });
       setMessage("Password reset successful. Redirecting...");
       setTimeout(() => (window.location.href = "/portal"), 1200);
-    } catch {
-      setMessage("Invalid or expired token.");
+    } catch (error) {
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 400 || error.response?.status === 404)
+      ) {
+        setMessage("Invalid or expired token.");
+        return;
+      }
+
+      setMessage("Unable to reset your password right now. Please try again.");
     }
   };
 

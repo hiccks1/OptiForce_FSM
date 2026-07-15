@@ -6,7 +6,7 @@ export const DRIFTY_FILE_CONTRACT = {
 };
 
 
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { prisma } from "@fsm/db";
 import { ScheduleService } from "@fsm/core/services/ScheduleService";
 import type { RequestContext } from "@fsm/core/context/RequestContext";
@@ -43,7 +43,7 @@ function getScheduleService() {
 // JOBS (JSONB-first)
 // =====================================================
 
-export async function createJob(req: Request, res: Response) {
+export async function createJob(req: Request, res: Response, next: NextFunction) {
   try {
     const companyId = requireCompanyId(req);
     const ctx = requireCtx(req);
@@ -103,13 +103,11 @@ export async function createJob(req: Request, res: Response) {
 
     return res.status(201).json(created);
   } catch (err) {
-    return res.status(400).json({
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
+    next(err);
   }
 }
 
-export async function listJobs(req: Request, res: Response) {
+export async function listJobs(req: Request, res: Response, next: NextFunction) {
   try {
     const companyId = requireCompanyId(req);
     const { page, limit, skip } = parsePagination(req);
@@ -164,13 +162,11 @@ export async function listJobs(req: Request, res: Response) {
       data: rows,
     });
   } catch (err) {
-    return res.status(400).json({
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
+    next(err);
   }
 }
 
-export async function getJobById(req: Request, res: Response) {
+export async function getJobById(req: Request, res: Response, next: NextFunction) {
   try {
     const companyId = requireCompanyId(req);
     const id = req.params.id;
@@ -193,13 +189,11 @@ export async function getJobById(req: Request, res: Response) {
 
     return res.json(job);
   } catch (err) {
-    return res.status(400).json({
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
+    next(err);
   }
 }
 
-export async function updateJobStatus(req: Request, res: Response) {
+export async function updateJobStatus(req: Request, res: Response, next: NextFunction) {
   try {
     const companyId = requireCompanyId(req);
     const id = req.params.id;
@@ -242,9 +236,7 @@ export async function updateJobStatus(req: Request, res: Response) {
 
     return res.json(saved);
   } catch (err) {
-    return res.status(400).json({
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
+    next(err);
   }
 }
 
@@ -252,7 +244,7 @@ export async function updateJobStatus(req: Request, res: Response) {
 // CALENDAR (VISITS INSIDE Job.data.visits[])
 // =====================================================
 
-export async function calendarJobs(req: Request, res: Response) {
+export async function calendarJobs(req: Request, res: Response, next: NextFunction) {
   try {
     requireCompanyId(req);
     const ctx = requireCtx(req);
@@ -306,9 +298,7 @@ export async function calendarJobs(req: Request, res: Response) {
       events,
     });
   } catch (err) {
-    return res.status(400).json({
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
+    next(err);
   }
 }
 
@@ -316,7 +306,7 @@ export async function calendarJobs(req: Request, res: Response) {
 // VISIT PATCH (NEW CORRECT ENDPOINT)
 // =====================================================
 
-export async function updateVisit(req: Request, res: Response) {
+export async function updateVisit(req: Request, res: Response, next: NextFunction) {
   try {
     requireCompanyId(req);
     const ctx = requireCtx(req);
@@ -364,9 +354,7 @@ export async function updateVisit(req: Request, res: Response) {
 
     return res.json({ ok: true });
   } catch (err) {
-    return res.status(400).json({
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
+    next(err);
   }
 }
 
@@ -377,7 +365,7 @@ export async function updateVisit(req: Request, res: Response) {
 // - Uses body.visitId if provided, otherwise patches first visit
 // =====================================================
 
-export async function scheduleJob(req: Request, res: Response) {
+export async function scheduleJob(req: Request, res: Response, next: NextFunction) {
   try {
     const companyId = requireCompanyId(req);
     const ctx = requireCtx(req);
@@ -435,8 +423,6 @@ export async function scheduleJob(req: Request, res: Response) {
 
     return res.json({ ok: true });
   } catch (err) {
-    return res.status(400).json({
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
+    next(err);
   }
 }

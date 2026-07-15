@@ -150,7 +150,10 @@ export default function CsrCustomerIntake() {
         assignedTechId: '',
       });
     } catch (err) {
-      setStatus({ type: 'error', message: 'Database dispatch error. Configuration parsing check failed.' });
+      setStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Database dispatch failed.',
+      });
     }
   };
 

@@ -202,7 +202,10 @@ export default function CalendarPage() {
                       <Button
                         onClick={async () => {
                           const jobId = selected.jobId;
-                          if (!jobId) throw new Error("Missing jobId on visit");
+                          if (!jobId) {
+                            setError("Missing jobId on visit");
+                            return;
+                          }
 
                           const res = await api.updateVisit(
                             { jobId, visitId: selected.id },
@@ -217,7 +220,10 @@ export default function CalendarPage() {
                             }
                           );
 
-                          if (!res.ok) throw new Error(res.error);
+                          if (!res.ok) {
+                            setError(res.error);
+                            return;
+                          }
                           setSelected(null);
                           await refresh();
                         }}
@@ -234,7 +240,10 @@ export default function CalendarPage() {
                             scheduledEnd: createSeed.endIso,
                           });
 
-                          if (!res.ok) throw new Error(res.error);
+                          if (!res.ok) {
+                            setError(res.error);
+                            return;
+                          }
                           setCreateSeed(null);
                           await refresh();
                         }}

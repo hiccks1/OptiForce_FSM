@@ -5,9 +5,11 @@ export const DRIFTY_FILE_CONTRACT = {
   layers: ["L3_INTEGRATION"],
 };
 
+import "express-async-errors";
 import express from "express";
 import cors from "cors";
 import { attachCtx } from './middleware/attachCtx';
+import { errorHandler } from "./middleware/errorHandler";
 import routes from "./routes";
 
 
@@ -26,8 +28,9 @@ app.use(
 // handle preflight
 app.options("*", cors());
 
+app.use(express.json());
 app.use(attachCtx);
 app.use(routes);
-app.use(express.json());
+app.use(errorHandler);
 
 export default app;
