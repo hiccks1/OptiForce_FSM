@@ -8,27 +8,16 @@
 
 import type { VisitData, RegulatedVisitData, ArrivalRecord } from './VisitData';
 import type { VisitStatus } from './VisitStatus';
-import { isImmutable, canTransition, validateTransition } from './VisitStatus';
+import { isImmutable, validateTransition } from './VisitStatus';
+import {
+  type ValidationResult,
+  VALID,
+  invalid,
+  withWarnings,
+  combineResults,
+} from '../shared/validation-result';
 
-// ============================================
-// VALIDATION RESULT
-// ============================================
-
-export interface ValidationResult {
-  readonly valid: boolean;
-  readonly errors: readonly string[];
-  readonly warnings: readonly string[];
-}
-
-const VALID: ValidationResult = { valid: true, errors: [], warnings: [] };
-
-function invalid(...errors: string[]): ValidationResult {
-  return { valid: false, errors, warnings: [] };
-}
-
-function withWarnings(result: ValidationResult, ...warnings: string[]): ValidationResult {
-  return { ...result, warnings: [...result.warnings, ...warnings] };
-}
+export type { ValidationResult };
 
 // ============================================
 // RULE: Visit requires Job
@@ -331,38 +320,20 @@ export function validateVisitCreate(params: {
   companyId: string | null | undefined;
   data: VisitData;
 }): ValidationResult {
-  const results: ValidationResult[] = [
+  return combineResults([
     validateParentJob(params.jobId),
     validateTenantIsolation(params.companyId),
-  ];
-
-  const errors = results.flatMap(r => r.errors);
-  const warnings = results.flatMap(r => r.warnings);
-
-  return {
-    valid: errors.length === 0,
-    errors,
-    warnings,
-  };
+  ]);
 }
 
 export function validateVisitUpdate(params: {
   currentStatus: VisitStatus;
   companyId: string | null | undefined;
 }): ValidationResult {
-  const results: ValidationResult[] = [
+  return combineResults([
     validateTenantIsolation(params.companyId),
     validateNotImmutable(params.currentStatus),
-  ];
-
-  const errors = results.flatMap(r => r.errors);
-  const warnings = results.flatMap(r => r.warnings);
-
-  return {
-    valid: errors.length === 0,
-    errors,
-    warnings,
-  };
+  ]);
 }
 
 

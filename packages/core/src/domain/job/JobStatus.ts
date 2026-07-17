@@ -6,6 +6,8 @@
 // NO I/O, NO PRISMA, NO SIDE EFFECTS
 // ============================================
 
+import { createStateMachine } from '../shared/stateMachine';
+
 /**
  * Job lifecycle states
  * 
@@ -38,6 +40,8 @@ const TRANSITIONS: Record<JobStatus, readonly JobStatus[]> = {
   CANCELLED: [],            // Terminal
 } as const;
 
+const machine = createStateMachine<JobStatus>(TRANSITIONS);
+
 /**
  * States that lock the job (limited edits)
  */
@@ -52,17 +56,11 @@ const PRICE_EDITABLE_STATES: readonly JobStatus[] = ['DRAFT', 'SCHEDULED', 'DISP
 // PURE FUNCTIONS
 // ============================================
 
-export function canTransition(from: JobStatus, to: JobStatus): boolean {
-  return TRANSITIONS[from].includes(to);
-}
-
-export function getAllowedTransitions(current: JobStatus): readonly JobStatus[] {
-  return TRANSITIONS[current];
-}
-
-export function isTerminal(status: JobStatus): boolean {
-  return TRANSITIONS[status].length === 0;
-}
+export const canTransition = machine.canTransition;
+export const getAllowedTransitions = machine.getAllowedTransitions;
+export const isTerminal = machine.isTerminal;
+export const canCancel = machine.canCancel;
+export const validateTransition = machine.validateTransition;
 
 export function isLocked(status: JobStatus): boolean {
   return LOCKED_STATES.includes(status);
@@ -72,38 +70,8 @@ export function canEditPricing(status: JobStatus): boolean {
   return PRICE_EDITABLE_STATES.includes(status);
 }
 
-export function canCancel(status: JobStatus): boolean {
-  return TRANSITIONS[status].includes('CANCELLED');
-}
-
 export function canAddVisits(status: JobStatus): boolean {
   return !isLocked(status);
-}
-
-export function validateTransition(
-  from: JobStatus,
-  to: JobStatus
-): { valid: true } | { valid: false; reason: string } {
-  if (from === to) {
-    return { valid: false, reason: `Already in ${from} status` };
-  }
-
-  if (isTerminal(from)) {
-    return {
-      valid: false,
-      reason: `Cannot transition from terminal state ${from}`,
-    };
-  }
-
-  if (!canTransition(from, to)) {
-    const allowed = getAllowedTransitions(from);
-    return {
-      valid: false,
-      reason: `Cannot transition from ${from} to ${to}. Allowed: ${allowed.join(', ')}`,
-    };
-  }
-
-  return { valid: true };
 }
 
 // ============================================

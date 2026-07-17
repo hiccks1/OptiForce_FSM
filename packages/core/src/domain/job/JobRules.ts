@@ -9,26 +9,15 @@
 import type { JobData, LineItem } from './JobData';
 import type { JobStatus } from './JobStatus';
 import { isLocked, canEditPricing, checkJobCompletion } from './JobStatus';
+import {
+  type ValidationResult,
+  VALID,
+  invalid,
+  withWarnings,
+  combineResults,
+} from '../shared/validation-result';
 
-// ============================================
-// VALIDATION RESULT
-// ============================================
-
-export interface ValidationResult {
-  readonly valid: boolean;
-  readonly errors: readonly string[];
-  readonly warnings: readonly string[];
-}
-
-const VALID: ValidationResult = { valid: true, errors: [], warnings: [] };
-
-function invalid(...errors: string[]): ValidationResult {
-  return { valid: false, errors, warnings: [] };
-}
-
-function withWarnings(result: ValidationResult, ...warnings: string[]): ValidationResult {
-  return { ...result, warnings: [...result.warnings, ...warnings] };
-}
+export type { ValidationResult };
 
 // ============================================
 // RULE: Job requires companyId
@@ -253,19 +242,10 @@ export function validateJobUpdate(params: {
   companyId: string | null | undefined;
   currentStatus: JobStatus;
 }): ValidationResult {
-  const results: ValidationResult[] = [
+  return combineResults([
     validateTenantIsolation(params.companyId),
     validateNotLocked(params.currentStatus),
-  ];
-
-  const errors = results.flatMap(r => r.errors);
-  const warnings = results.flatMap(r => r.warnings);
-
-  return {
-    valid: errors.length === 0,
-    errors,
-    warnings,
-  };
+  ]);
 }
 
 

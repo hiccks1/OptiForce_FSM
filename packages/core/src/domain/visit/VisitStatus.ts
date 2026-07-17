@@ -7,6 +7,8 @@
 // NO I/O, NO PRISMA, NO SIDE EFFECTS
 // ============================================
 
+import { createStateMachine } from '../shared/stateMachine';
+
 /**
  * Visit lifecycle states
  * 
@@ -33,10 +35,7 @@ const TRANSITIONS: Record<VisitStatus, readonly VisitStatus[]> = {
   CANCELLED: [],  // Terminal
 } as const;
 
-/**
- * States that lock the visit (no further edits)
- */
-const TERMINAL_STATES: readonly VisitStatus[] = ['COMPLETED', 'CANCELLED'] as const;
+const machine = createStateMachine<VisitStatus>(TRANSITIONS);
 
 /**
  * States that require chain of custody for regulated industries
@@ -47,31 +46,11 @@ const CUSTODY_STATES: readonly VisitStatus[] = ['ON_SITE', 'COMPLETED'] as const
 // PURE FUNCTIONS
 // ============================================
 
-/**
- * Check if transition is allowed
- */
-export function canTransition(
-  from: VisitStatus,
-  to: VisitStatus
-): boolean {
-  return TRANSITIONS[from].includes(to);
-}
-
-/**
- * Get allowed next states
- */
-export function getAllowedTransitions(
-  current: VisitStatus
-): readonly VisitStatus[] {
-  return TRANSITIONS[current];
-}
-
-/**
- * Check if visit is in terminal state (no more transitions)
- */
-export function isTerminal(status: VisitStatus): boolean {
-  return TERMINAL_STATES.includes(status);
-}
+export const canTransition = machine.canTransition;
+export const getAllowedTransitions = machine.getAllowedTransitions;
+export const isTerminal = machine.isTerminal;
+export const canCancel = machine.canCancel;
+export const validateTransition = machine.validateTransition;
 
 /**
  * Check if visit is immutable (completed = locked forever)
@@ -92,42 +71,6 @@ export function requiresChainOfCustody(status: VisitStatus): boolean {
  */
 export function canEdit(status: VisitStatus): boolean {
   return !isTerminal(status);
-}
-
-/**
- * Check if visit can be cancelled
- */
-export function canCancel(status: VisitStatus): boolean {
-  return TRANSITIONS[status].includes('CANCELLED');
-}
-
-/**
- * Validate transition and return error message if invalid
- */
-export function validateTransition(
-  from: VisitStatus,
-  to: VisitStatus
-): { valid: true } | { valid: false; reason: string } {
-  if (from === to) {
-    return { valid: false, reason: `Already in ${from} status` };
-  }
-
-  if (isTerminal(from)) {
-    return {
-      valid: false,
-      reason: `Cannot transition from terminal state ${from}`,
-    };
-  }
-
-  if (!canTransition(from, to)) {
-    const allowed = getAllowedTransitions(from);
-    return {
-      valid: false,
-      reason: `Cannot transition from ${from} to ${to}. Allowed: ${allowed.join(', ')}`,
-    };
-  }
-
-  return { valid: true };
 }
 
 // ============================================
