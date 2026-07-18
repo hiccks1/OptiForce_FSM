@@ -34,6 +34,7 @@ export default function Calendar() {
   const [techFilter, setTechFilter] = useState('');
   const [editing, setEditing] = useState<Editing>(null);
   const [msg, setMsg] = useState('');
+  const [loadError, setLoadError] = useState('');
 
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i)), [weekStart]);
 
@@ -41,7 +42,12 @@ export default function Calendar() {
     const start = days[0]!;
     const end = new Date(days[6]!.getFullYear(), days[6]!.getMonth(), days[6]!.getDate() + 1);
     const r = await api.listCalendar({ start: start.toISOString(), end: end.toISOString() });
-    if (r.ok) setEvents(r.data.events);
+    if (r.ok) {
+      setEvents(r.data.events);
+      setLoadError('');
+      return;
+    }
+    setLoadError(r.error);
   }, [days]);
 
   useEffect(() => {
@@ -73,6 +79,8 @@ export default function Calendar() {
           {days[0]!.toLocaleDateString([], { month: 'short', day: 'numeric' })} – {days[6]!.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
+
+      {loadError && <div style={{ color: theme.danger, fontSize: 13, marginBottom: 12 }}>{loadError}</div>}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 10 }}>
         {days.map((d) => {

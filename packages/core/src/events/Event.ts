@@ -3,9 +3,15 @@
 // Domain Event System
 // ============================================
 
+export const DRIFTY_FILE_CONTRACT = {
+  driftyVersion: '1.0.0',
+  layers: ['L1_DATA'],
+};
+
 import { randomUUID } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
-import type { RequestContext } from '../types';
+import type { RequestContext } from '../context/RequestContext';
+import { writeAuditLog } from '../audit/writeAuditLog';
 
 // ============================================================
 // DOMAIN EVENT TYPES
@@ -61,20 +67,37 @@ export class EventEmitter {
     // Persist event for audit trail
     await this.persistEvent(event);
 
-    // Execute handlers with individual error handling
     const handlers = this.handlers.get(eventType) || [];
-    
-    await Promise.allSettled(
+    const results = await Promise.allSettled(
       handlers.map(async (handler) => {
         try {
           await handler(event);
-          await this.auditHandlerSuccess(event, handler.name);
         } catch (error) {
-          await this.auditHandlerFailure(event, handler.name, error);
-          // Don't throw - allow other handlers to continue
+          try {
+            await this.auditHandlerFailure(event, handler.name, error);
+          } catch (auditError) {
+            throw new AggregateError(
+              [error, auditError],
+              `Event handler and failure audit both failed: ${handler.name || 'anonymous'}`
+            );
+          }
+          throw error;
         }
+
+        await this.auditHandlerSuccess(event, handler.name);
       })
     );
+
+    const failures = results.flatMap((result) =>
+      result.status === 'rejected' ? [result.reason] : []
+    );
+
+    if (failures.length > 0) {
+      throw new AggregateError(
+        failures,
+        `${failures.length} handler(s) failed for event ${eventType}`
+      );
+    }
   }
 
   // ============================================================
@@ -82,16 +105,17 @@ export class EventEmitter {
   // ============================================================
 
   private async persistEvent(event: DomainEvent): Promise<void> {
-    await this.ctx.prisma.domainEvent.create({
-      data: {
-        id: event.id,
-        type: event.type,
+    await writeAuditLog(this.prisma, {
+      companyId: event.context.companyId,
+      actorId: event.context.actorId,
+      actorType: event.context.actorType,
+      entityType: 'domainEvent',
+      entityId: event.id,
+      action: event.type,
+      payload: {
         version: event.version,
-        companyId: event.context.companyId,
-        actorId: event.context.userId,
-        actorType: event.context.actorType,
-        payload: event.payload as any,
-        timestamp: event.timestamp,
+        timestamp: event.timestamp.toISOString(),
+        data: event.payload,
       },
     });
   }
@@ -102,22 +126,15 @@ export class EventEmitter {
   ): Promise<void> {
     const handlerId = handlerName || 'anonymous';
     
-    try {
-      await this.ctx.prisma.aiActionLog.create({
-        data: {
-          companyId: event.context.companyId,
-          actorId: event.context.userId,
-          actorType: event.context.actorType,
-          action: `event.handler.${event.type}.${handlerId}`,
-          input: { eventId: event.id },
-          outcome: { success: true },
-          allowed: true,
-        },
-      });
-    } catch (error) {
-      // Silent failure - don't let audit errors break event flow
-      console.error('Failed to audit handler success:', error);
-    }
+    await writeAuditLog(this.prisma, {
+      companyId: event.context.companyId,
+      actorId: event.context.actorId,
+      actorType: event.context.actorType,
+      entityType: 'domainEvent',
+      entityId: event.id,
+      action: `event.handler.${event.type}.${handlerId}`,
+      payload: { success: true },
+    });
   }
 
   private async auditHandlerFailure(
@@ -127,26 +144,17 @@ export class EventEmitter {
   ): Promise<void> {
     const handlerId = handlerName || 'anonymous';
     
-    try {
-      await this.ctx.prisma.aiActionLog.create({
-        data: {
-          companyId: event.context.companyId,
-          actorId: event.context.userId,
-          actorType: event.context.actorType,
-          action: `event.handler.${event.type}.${handlerId}`,
-          input: { eventId: event.id },
-          outcome: {
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          },
-          allowed: true,
-        },
-      });
-    } catch (auditError) {
-      // Silent failure - don't let audit errors break event flow
-      console.error('Failed to audit handler failure:', auditError);
-    }
+    await writeAuditLog(this.prisma, {
+      companyId: event.context.companyId,
+      actorId: event.context.actorId,
+      actorType: event.context.actorType,
+      entityType: 'domainEvent',
+      entityId: event.id,
+      action: `event.handler.${event.type}.${handlerId}`,
+      payload: {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+    });
   }
 }
-
-

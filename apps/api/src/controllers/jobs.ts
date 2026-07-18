@@ -1,5 +1,5 @@
 // apps/api/src/controllers/jobs.ts
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { prisma } from '@fsm/db';
 import { asJobData, deriveStatus, newId, type JobData, type Visit } from '../domain/jobData';
 
@@ -18,7 +18,7 @@ async function saveJobData(jobId: string, data: JobData, actorId: string) {
 }
 
 // GET /jobs — list all jobs (engagements) for the tenant.
-export async function listJobs(req: Request, res: Response) {
+export async function listJobs(req: Request, res: Response, next: NextFunction) {
   try {
     const rows = await prisma.job.findMany({
       where: { companyId: companyId(req), deletedAt: null },
@@ -44,12 +44,12 @@ export async function listJobs(req: Request, res: Response) {
 
     res.json({ jobs });
   } catch (err) {
-    res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to list jobs' });
+    next(err);
   }
 }
 
 // GET /jobs/:id — full job with visits.
-export async function getJobById(req: Request, res: Response) {
+export async function getJobById(req: Request, res: Response, next: NextFunction) {
   try {
     const row = await prisma.job.findFirst({
       where: { id: req.params.id, companyId: companyId(req), deletedAt: null },
@@ -57,12 +57,12 @@ export async function getJobById(req: Request, res: Response) {
     if (!row) return res.status(404).json({ error: 'Job not found' });
     return res.json({ id: row.id, ...asJobData(row.data), createdAt: row.createdAt });
   } catch (err) {
-    return res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to get job' });
+    next(err);
   }
 }
 
 // POST /jobs — create a job. If a scheduledWindow is provided, seed a first visit.
-export async function createJob(req: Request, res: Response) {
+export async function createJob(req: Request, res: Response, next: NextFunction) {
   try {
     const body = (req.body ?? {}) as Record<string, unknown>;
     const sw = body.scheduledWindow as { start?: string; end?: string } | undefined;
@@ -102,12 +102,12 @@ export async function createJob(req: Request, res: Response) {
 
     res.status(201).json({ jobId: created.id, visitId: visits[0]?.id ?? null });
   } catch (err) {
-    res.status(400).json({ error: err instanceof Error ? err.message : 'Failed to create job' });
+    next(err);
   }
 }
 
 // GET /jobs/calendar?start=&end= — flatten visits across jobs into calendar events.
-export async function calendarJobs(req: Request, res: Response) {
+export async function calendarJobs(req: Request, res: Response, next: NextFunction) {
   try {
     const start = typeof req.query.start === 'string' ? req.query.start : undefined;
     const end = typeof req.query.end === 'string' ? req.query.end : undefined;
@@ -142,12 +142,12 @@ export async function calendarJobs(req: Request, res: Response) {
 
     res.json({ start, end, count: events.length, events });
   } catch (err) {
-    res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to load calendar' });
+    next(err);
   }
 }
 
 // POST /jobs/:jobId/visits — add a visit to an existing job.
-export async function addVisit(req: Request, res: Response) {
+export async function addVisit(req: Request, res: Response, next: NextFunction) {
   try {
     const row = await prisma.job.findFirst({
       where: { id: req.params.jobId, companyId: companyId(req), deletedAt: null },
@@ -171,12 +171,12 @@ export async function addVisit(req: Request, res: Response) {
     await saveJobData(row.id, data, req.ctx.actorId);
     return res.status(201).json({ jobId: row.id, visitId: visit.id });
   } catch (err) {
-    return res.status(400).json({ error: err instanceof Error ? err.message : 'Failed to add visit' });
+    next(err);
   }
 }
 
 // PATCH /jobs/:jobId/visits/:visitId — reschedule / edit a visit.
-export async function updateVisit(req: Request, res: Response) {
+export async function updateVisit(req: Request, res: Response, next: NextFunction) {
   try {
     const row = await prisma.job.findFirst({
       where: { id: req.params.jobId, companyId: companyId(req), deletedAt: null },
@@ -203,12 +203,12 @@ export async function updateVisit(req: Request, res: Response) {
     await saveJobData(row.id, data, req.ctx.actorId);
     return res.json({ ok: true });
   } catch (err) {
-    return res.status(400).json({ error: err instanceof Error ? err.message : 'Failed to update visit' });
+    next(err);
   }
 }
 
 // DELETE /jobs/:jobId/visits/:visitId — cancel a visit (soft, keeps history).
-export async function cancelVisit(req: Request, res: Response) {
+export async function cancelVisit(req: Request, res: Response, next: NextFunction) {
   try {
     const row = await prisma.job.findFirst({
       where: { id: req.params.jobId, companyId: companyId(req), deletedAt: null },
@@ -223,6 +223,6 @@ export async function cancelVisit(req: Request, res: Response) {
     await saveJobData(row.id, data, req.ctx.actorId);
     return res.json({ ok: true });
   } catch (err) {
-    return res.status(400).json({ error: err instanceof Error ? err.message : 'Failed to cancel visit' });
+    next(err);
   }
 }

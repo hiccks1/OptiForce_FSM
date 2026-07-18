@@ -65,6 +65,6 @@ export async function attachCtx(req: Request, res: Response, next: NextFunction)
     res.setHeader('X-Request-ID', requestId);
     next();
   } catch (err) {
-    res.status(500).json({ error: err instanceof Error ? err.message : 'Context error' });
+    next(err);
   }
 }

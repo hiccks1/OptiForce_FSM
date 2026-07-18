@@ -1,7 +1,9 @@
 // apps/api/src/app.ts - Express app wiring
+import 'express-async-errors';
 import express from 'express';
 import cors from 'cors';
 import { attachCtx } from './middleware/attachCtx';
+import { errorHandler } from './middleware/errorHandler';
 import routes from './routes';
 
 const app = express();
@@ -22,12 +24,6 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 // Tenant context for all API routes, then the routes themselves.
 app.use(attachCtx);
 app.use(routes);
-
-// Fallback error handler.
-app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  // eslint-disable-next-line no-console
-  console.error('API error:', err);
-  res.status(500).json({ error: err instanceof Error ? err.message : 'Internal error' });
-});
+app.use(errorHandler);
 
 export default app;
