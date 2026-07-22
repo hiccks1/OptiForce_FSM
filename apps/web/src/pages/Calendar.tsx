@@ -5,10 +5,13 @@ import dayGridPlugin from '@fullcalendar/react/daygrid';
 import timeGridPlugin from '@fullcalendar/react/timegrid';
 import interactionPlugin from '@fullcalendar/react/interaction';
 import scrollGridPlugin from '@fullcalendar/react-scheduler/scrollgrid'; 
+// 1. Import the chosen Theme Plugin JS
+import formaThemePlugin from '@fullcalendar/react/themes/forma';
 
-
-// Mandatory FullCalendar v7 CSS Layout Models
-import '@fullcalendar/react/skeleton.css';
+// 2. Import the required CSS layers
+import '@fullcalendar/react/skeleton.css'; 
+import '@fullcalendar/react/themes/forma/theme.css'; 
+import '@fullcalendar/react/themes/forma/palettes/blue.css'; 
 
 import Layout from '../components/Layout';
 import { api, type CalendarEvent, type Customer } from '../api/client';
@@ -308,9 +311,9 @@ return (
     }}>
           <FullCalendar
             ref={calendarRef}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimelinePlugin]}
+            plugins={[formaThemePlugin,dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimelinePlugin]}
             initialView={viewMode}
-            schedulerLicenseKey="CC-Attribution-NonCommercial"
+            schedulerLicenseKey="CC-Attribution-NonCommercial"            
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',
