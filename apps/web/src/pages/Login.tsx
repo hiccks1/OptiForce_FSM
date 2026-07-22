@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, type User } from '../api/client';
 import { saveSession } from '../auth';
+import logo from '/optiforce-logo-main.png'; 
 import { theme } from '../theme';
 
 export default function Login() {
@@ -31,12 +32,18 @@ export default function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr', fontFamily: 'Inter, system-ui, sans-serif' }}>
-      <div style={{ background: `linear-gradient(150deg, ${theme.primary}, #1e1b4b)`, color: '#fff', padding: 56, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 22 }}>O</div>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>OptiForce FSM</div>
+    <div style={{ minHeight: '50vh', display: 'grid', gridTemplateColumns: '1fr 1fr', fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <div style={{ background: `linear-gradient(150deg, ${theme.primary}, #1e1b4b)`, color: '#fff', padding: 45, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        
+        {/* LOGO HEADER AREA - INCREASED SIZE */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: -50 }}>
+          <img 
+            src={logo} 
+            alt="OptiForce FSM" 
+            style={{ height: 350, width: 'auto', maxWidth: '100%', objectFit: 'contain' }} 
+          />
         </div>
+
         <h2 style={{ fontSize: 36, lineHeight: 1.15, margin: '0 0 16px', maxWidth: 460 }}>The workspace your CSRs use to schedule, dispatch & delight customers.</h2>
         <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', maxWidth: 420 }}>
           Book visits on a live calendar, manage your customer book, track jobs & documents — and give customers their own self-service portal.

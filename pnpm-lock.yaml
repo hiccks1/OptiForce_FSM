@@ -84,9 +84,21 @@ importers:
       '@fsm/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
+      '@fullcalendar/react':
+        specifier: ^7.0.1
+        version: 7.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(temporal-polyfill@1.0.1)
+      '@fullcalendar/react-scheduler':
+        specifier: ^7.0.1
+        version: 7.0.1(@fullcalendar/react@7.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(temporal-polyfill@1.0.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(temporal-polyfill@1.0.1)
+      fullcalendar:
+        specifier: ^7.0.1
+        version: 7.0.1(temporal-polyfill@1.0.1)
       lucide-react:
         specifier: ^1.24.0
         version: 1.24.0(react@18.3.1)
+      preact:
+        specifier: ^10.29.7
+        version: 10.29.7
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -96,6 +108,9 @@ importers:
       react-router-dom:
         specifier: ^6.21.0
         version: 6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      temporal-polyfill:
+        specifier: ^1.0.1
+        version: 1.0.1
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -205,16 +220,19 @@ importers:
       pg:
         specifier: ^8.13.0
         version: 8.18.0
+      tsx:
+        specifier: ^4.22.4
+        version: 4.23.0
     devDependencies:
       '@types/pg':
         specifier: ^8.11.11
         version: 8.20.0
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.6.1
       prisma:
         specifier: ^7.8.0
         version: 7.8.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      tsx:
-        specifier: ^4.23.0
-        version: 4.23.0
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
@@ -844,6 +862,35 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@full-ui/headless-calendar@7.0.1':
+    resolution: {integrity: sha512-ridxaPRKiSzfeXkk8kta1wC9asYqPWXf4q0KbUW5hRvWQ1rkxeUbhBarcMEOFC7FvJHczPSAm0JzSrXv/ykuKw==}
+    peerDependencies:
+      temporal-polyfill: ^1.0.1
+
+  '@full-ui/headless-grid@7.0.1':
+    resolution: {integrity: sha512-5ksHwi0EBprD+eQ79705e/NKv/lk/oMXMSJSLJSpsJ3iD42LEp1jNKyHkASB/PbeLSR1yhrj+0sUUVQwtX0KwQ==}
+
+  '@fullcalendar/core@7.0.1':
+    resolution: {integrity: sha512-SRJT4lSRZZGVCz6ss48pFCNiIS7iutpQVID73GFQufH94MTYs+akCW9aKCjMwsnEWad5UV7Mcm4xndFQ4dDi0g==}
+    peerDependencies:
+      '@full-ui/headless-calendar': 7.0.1
+      temporal-polyfill: ^1.0.1
+
+  '@fullcalendar/react-scheduler@7.0.1':
+    resolution: {integrity: sha512-OMpam2J+lUAplXE/lVFXCss7EQWoIrOs6rL+B/4wB0RKJtXJeQSf1N9dEeCKUWt6AdGISqX7sNVe0tPvEf2cVQ==}
+    peerDependencies:
+      '@fullcalendar/react': 7.0.1
+      react: ^17 || ^18 || ^19
+      react-dom: ^17 || ^18 || ^19
+      temporal-polyfill: ^1.0.1
+
+  '@fullcalendar/react@7.0.1':
+    resolution: {integrity: sha512-R+/YnZVr82eJy3qeA94Kj1xjNta3MU+xkHAKuqTVCriNxUusjaLIskh7bcRt7TJHsoT3OmdSCBgw5fjXjIC9vQ==}
+    peerDependencies:
+      react: ^17 || ^18 || ^19
+      react-dom: ^17 || ^18 || ^19
+      temporal-polyfill: ^1.0.1
 
   '@hono/node-server@1.19.11':
     resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
@@ -1785,6 +1832,11 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  fullcalendar@7.0.1:
+    resolution: {integrity: sha512-e4HymMjH93UtKq9srPeN1cwmVsW5w6CmVNIb4qr4q1tMpl8RpMD9zaJAbbtlSjjMH0ELGP9yJwq9l34wDPUenA==}
+    peerDependencies:
+      temporal-polyfill: ^1.0.1
+
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
 
@@ -2303,6 +2355,14 @@ packages:
     resolution: {integrity: sha512-Jtc2612XINuBjIl/QTWsV5UvE8UHuNblcO3vVADSrKsrc6RqGX6lOW1cEo3CM2v0XG4Nat8nI+YM7/f26VxXLw==}
     engines: {node: '>=12'}
 
+  preact@10.29.7:
+    resolution: {integrity: sha512-DCHYrK/B10yUD3ZjLfhZ3WIE/9Vf9VFUODcRE2dRomTYDpJk6z6L9wecSfhfE6M9ZTHUdyQkoC46arIDhEV84Q==}
+    peerDependencies:
+      preact-render-to-string: '>=5'
+    peerDependenciesMeta:
+      preact-render-to-string:
+        optional: true
+
   prisma@7.8.0:
     resolution: {integrity: sha512-yfN4yrw7HV9kEJhoy1+jgah0jafEIQsf7uWouSsM8MvJtlubsk+kM7AIBWZ8+GJl74Yj3c+nbYqBkMOxtsZ3Lw==}
     engines: {node: ^20.19 || ^22.12 || >=24.0}
@@ -2588,6 +2648,15 @@ packages:
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
     engines: {node: '>=8'}
+
+  temporal-polyfill@1.0.1:
+    resolution: {integrity: sha512-N2SoI9olnW7BUsU8RosDphZQl9s+WJ8O7PoJMFCr/e5/1rFkVI4GNOWaSeySG+UoP04foPYsnLWbJmbXOiShZg==}
+
+  temporal-spec@1.0.0:
+    resolution: {integrity: sha512-00Ahj1e1ifaERTMOIIGpOCdOo9IEk2m6GGSMedsn9a2SIsGLdOTbmME1Htv6IM82b6VHrzSUTIVc7YHy6hdhFQ==}
+
+  temporal-utils@1.0.1:
+    resolution: {integrity: sha512-HAixuesxFQIUaQk3ptX2jhfO/FsOkgVkDDMawvp6n/fkB1q6BKfs3lURw9I+pK/2e2e/q/vrLrxmeqauBoyGMQ==}
 
   test-exclude@7.0.2:
     resolution: {integrity: sha512-u9E6A+ZDYdp7a4WnarkXPZOx8Ilz46+kby6p1yZ8zsGTz9gYa6FIS7lj2oezzNKmtdyyJNNmmXDppga5GB7kSw==}
@@ -3209,6 +3278,35 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.1':
     optional: true
+
+  '@full-ui/headless-calendar@7.0.1(temporal-polyfill@1.0.1)':
+    dependencies:
+      temporal-polyfill: 1.0.1
+
+  '@full-ui/headless-grid@7.0.1': {}
+
+  '@fullcalendar/core@7.0.1(@full-ui/headless-calendar@7.0.1(temporal-polyfill@1.0.1))(temporal-polyfill@1.0.1)':
+    dependencies:
+      '@full-ui/headless-calendar': 7.0.1(temporal-polyfill@1.0.1)
+      temporal-polyfill: 1.0.1
+
+  '@fullcalendar/react-scheduler@7.0.1(@fullcalendar/react@7.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(temporal-polyfill@1.0.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(temporal-polyfill@1.0.1)':
+    dependencies:
+      '@full-ui/headless-calendar': 7.0.1(temporal-polyfill@1.0.1)
+      '@full-ui/headless-grid': 7.0.1
+      '@fullcalendar/core': 7.0.1(@full-ui/headless-calendar@7.0.1(temporal-polyfill@1.0.1))(temporal-polyfill@1.0.1)
+      '@fullcalendar/react': 7.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(temporal-polyfill@1.0.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      temporal-polyfill: 1.0.1
+
+  '@fullcalendar/react@7.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(temporal-polyfill@1.0.1)':
+    dependencies:
+      '@full-ui/headless-calendar': 7.0.1(temporal-polyfill@1.0.1)
+      '@fullcalendar/core': 7.0.1(@full-ui/headless-calendar@7.0.1(temporal-polyfill@1.0.1))(temporal-polyfill@1.0.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      temporal-polyfill: 1.0.1
 
   '@hono/node-server@1.19.11(hono@4.12.28)':
     dependencies:
@@ -4219,6 +4317,15 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
+  fullcalendar@7.0.1(temporal-polyfill@1.0.1):
+    dependencies:
+      '@full-ui/headless-calendar': 7.0.1(temporal-polyfill@1.0.1)
+      '@fullcalendar/core': 7.0.1(@full-ui/headless-calendar@7.0.1(temporal-polyfill@1.0.1))(temporal-polyfill@1.0.1)
+      preact: 10.29.7
+      temporal-polyfill: 1.0.1
+    transitivePeerDependencies:
+      - preact-render-to-string
+
   function-bind@1.1.2: {}
 
   generate-function@2.3.1:
@@ -4737,6 +4844,8 @@ snapshots:
 
   postgres@3.4.7: {}
 
+  preact@10.29.7: {}
+
   prisma@7.8.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3):
     dependencies:
       '@prisma/config': 7.8.0(magicast@0.3.5)
@@ -5055,6 +5164,15 @@ snapshots:
   supports-color@7.2.0:
     dependencies:
       has-flag: 4.0.0
+
+  temporal-polyfill@1.0.1:
+    dependencies:
+      temporal-spec: 1.0.0
+      temporal-utils: 1.0.1
+
+  temporal-spec@1.0.0: {}
+
+  temporal-utils@1.0.1: {}
 
   test-exclude@7.0.2:
     dependencies:

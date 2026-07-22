@@ -1,3 +1,4 @@
+import resourceTimelinePlugin from '@fullcalendar/react-scheduler/resource-timeline';
 import { useCallback, useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { api, type Customer } from '../api/client';
@@ -91,32 +92,25 @@ function AddCustomerModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,18,40,0.45)', display: 'grid', placeItems: 'center', zIndex: 50 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: 460, background: '#fff', borderRadius: 16, padding: 24 }}>
         <h2 style={{ margin: '0 0 16px', fontSize: 19 }}>Add customer</h2>
+        
         <Field label="Name *"><input value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} /></Field>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <Field label="Email"><input value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} /></Field>
-          <Field label="Phone"><input value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} /></Field>
-        </div>
+        <Field label="Email"><input value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} /></Field>
+        <Field label="Phone"><input value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} /></Field>
         <Field label="Service type"><input value={serviceType} onChange={(e) => setServiceType(e.target.value)} placeholder="HVAC, Plumbing…" style={inputStyle} /></Field>
         <Field label="Street address"><input value={line1} onChange={(e) => setLine1(e.target.value)} style={inputStyle} /></Field>
+        
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
           <Field label="City"><input value={city} onChange={(e) => setCity(e.target.value)} style={inputStyle} /></Field>
           <Field label="State"><input value={state} onChange={(e) => setState(e.target.value)} style={inputStyle} /></Field>
         </div>
+
         {error && <div style={{ color: theme.danger, fontSize: 13 }}>{error}</div>}
+        
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 18 }}>
           <button onClick={onClose} style={{ border: `1px solid ${theme.border}`, background: '#fff', borderRadius: 10, padding: '10px 16px', cursor: 'pointer' }}>Cancel</button>
           <button onClick={save} disabled={busy} style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 18px', fontWeight: 600, cursor: 'pointer' }}>{busy ? 'Saving…' : 'Add customer'}</button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>{label}</div>
-      {children}
     </div>
   );
 }

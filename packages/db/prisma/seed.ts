@@ -1,12 +1,10 @@
-// packages/db/prisma/seed.ts
 /* eslint-disable no-console */
-import { config } from 'dotenv';
-import { resolve } from 'node:path';
+import 'dotenv/config'; 
 import { Pool } from 'pg';
-
-config({ path: resolve(__dirname, '../../../.env') });
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../src/generated/prisma/client';
+
+// Clean workspace root import—no deep relative nesting
+import { PrismaClient } from '@fsm/db';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -20,6 +18,10 @@ function at(dayOffset: number, hour: number, minutes = 0): string {
   d.setHours(hour, minutes, 0, 0);
   return d.toISOString();
 }
+
+
+// Add your seed logic execution down here...
+
 
 function plusHours(iso: string, hours: number): string {
   return new Date(new Date(iso).getTime() + hours * 3600_000).toISOString();

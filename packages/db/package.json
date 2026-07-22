@@ -15,15 +15,21 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
+    "seed-data": "prisma db seed-data",
     "seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "tsx": "^4.22.4",
     "pg": "^8.13.0"
   },
   "devDependencies": {
     "@types/pg": "^8.11.11",
+    "dotenv": "^16.3.1",
     "prisma": "^7.8.0",
     "tsx": "^4.23.0",
     "typescript": "^5.3.3"

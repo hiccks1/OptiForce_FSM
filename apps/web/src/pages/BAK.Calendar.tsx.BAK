@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
-import resourceTimelinePlugin from '@fullcalendar/react-scheduler/resource-timeline';
 import dayGridPlugin from '@fullcalendar/react/daygrid';
 import timeGridPlugin from '@fullcalendar/react/timegrid';
 import interactionPlugin from '@fullcalendar/react/interaction';
-import scrollGridPlugin from '@fullcalendar/react-scheduler/scrollgrid'; 
-
+import resourceTimelinePlugin from 'fullcalendar-scheduler/resource-timeline';
 
 // Mandatory FullCalendar v7 CSS Layout Models
 import '@fullcalendar/react/skeleton.css';
+import 'fullcalendar-scheduler/skeleton.css';
 
 import Layout from '../components/Layout';
 import { api, type CalendarEvent, type Customer } from '../api/client';
@@ -38,7 +37,7 @@ export default function Calendar(): React.JSX.Element {
   const [currentRange, setCurrentRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
   // Native layout switches matching your top right workspace options
-  const [viewMode, setViewMode] = useState<'resourceTimelineDay' | 'timeGridWeek' | 'resourceTimelineWeek'>('timeGridWeek');
+  const [viewMode, setViewMode] = useState<'timeGridDay' | 'timeGridWeek' | 'resourceTimelineWeek'>('timeGridWeek');
 
   // Customer intake and live lookup form mechanics
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -99,7 +98,7 @@ export default function Calendar(): React.JSX.Element {
     return sourceEvents.map((e) => {
       // Force status to uppercase to match your precise theme lookup keys safely
       const statusKey = (e.status || '').toUpperCase();
-      const assignedColor = statusColor[statusKey] || theme.primary || '#1d4ed8';
+      const assignedColor = statusColor[statusKey] || theme.primary || '#4f46e5';
       
       return {
         id: e.id,
@@ -127,8 +126,7 @@ export default function Calendar(): React.JSX.Element {
     const rawProps = event.extendedProps as CalendarEvent;
     
     // Resolve resource id lanes if on timeline view, fallback to standard properties
-  const resources = event.getResources();
-const targetTechId = (resources && resources[0]) ? resources[0].id : rawProps.technicianId;
+    const targetTechId = event.getResources()?.?[0]?.id || rawProps.technicianId;
     const techName = TECHS.find(t => t.id === targetTechId)?.name || null;
 
     // Apply rapid local prediction states for instant ui response
@@ -152,7 +150,7 @@ const targetTechId = (resources && resources[0]) ? resources[0].id : rawProps.te
       load();
     }
   };
-  /*// Live Client Profile Matching Engine (Judy Booty Logic Engine)
+  // Live Client Profile Matching Engine (Judy Booty Logic Engine)
   const filteredCustomers = useMemo(() => {
     if (!searchQuery) return [];
     return customers.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -171,7 +169,7 @@ const targetTechId = (resources && resources[0]) ? resources[0].id : rawProps.te
     setSearchQuery(customer.name);
     setShowDropdown(false);
   };
-*/
+
   // Submit intake tickets directly down to the unassigned backlog database tracks
   const handleCreateQuickTicket = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,64 +194,39 @@ const targetTechId = (resources && resources[0]) ? resources[0].id : rawProps.te
       }
     });
 
-  
-  if (r.ok) {
-    setIntakeForm({ customerName: '', customerPhone: '', notes: '', line1: '', city: '', state: '', postalCode: '' });
-    setSearchQuery('');
-    setMsg('Ticket queued for scheduling.');
-    await load();
-    setTimeout(() => setMsg(''), 3000);
-  }
-};
-
-// Style configurations extracted directly from your original variable definitions
-const inputStyle: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '10px 11px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14 };
-const btnGhost: React.CSSProperties = { border: `1px solid ${theme.border}`, background: '#fff', borderRadius: 10, padding: '10px 16px', cursor: 'pointer', fontSize: 14 };
-const navBtn: React.CSSProperties = { background: '#fff', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' };
-
-// FIX: Removed the rogue stray "(" symbol from here
-return (
-  <Layout
-    title="Dispatch Center Matrix"
-    actions={
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <div style={{ display: 'flex', background: '#1d4ed8', borderRadius: 10, padding: 4 }}>
-          
-          <button 
-            onClick={() => changeViewMode('resourceTimelineDay')} 
-            style={{ border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '6px 12px', background: viewMode === 'resourceTimelineDay' ? '#fff' : 'transparent', color: viewMode === 'resourceTimelineDay' ? '#111' : '#fff' }}
-          >
-            Day View
-          </button>
-          
-          <button 
-            onClick={() => changeViewMode('resourceTimelineWeek')} 
-            style={{ border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '6px 12px', background: viewMode === 'resourceTimelineWeek' ? '#fff' : 'transparent', color: viewMode === 'resourceTimelineWeek' ? '#111' : '#fff' }}
-          >
-            Week View
-          </button>
-          
-          {/* FIX: Corrected this action parameters value to route cleanly to your Month Grid layout display */}
-          <button 
-            onClick={() => changeViewMode('dayGridMonth')} 
-            style={{ border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '6px 12px', background: viewMode === 'dayGridMonth' ? '#fff' : 'transparent', color: viewMode === 'dayGridMonth' ? '#111' : '#fff' }}
-          >
-            Month View
-          </button>
-          
-        </div>
-        
-        <select value={techFilter} onChange={(e) => setTechFilter(e.target.value)} style={{ padding: '9px 10px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 13 }}>
-          <option value="">All technicians</option>
-          {TECHS.map((t) => (
-            <option key={t.id} value={t.id}>{t.name}</option>
-          ))}
-        </select>
-        
-        <button onClick={() => setEditing({ mode: 'create', date: new Date() })} style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 16px', fontWeight: 600, cursor: 'pointer' }}>+ New visit</button>
-      </div>
+    if (r.ok) {
+      setIntakeForm({ customerName: '', customerPhone: '', notes: '', line1: '', city: '', state: '', postalCode: '' });
+      setSearchQuery('');
+      setMsg('Ticket queued for scheduling.');
+      await load();
+      setTimeout(() => setMsg(''), 3000);
     }
-  >
+  };
+
+  // Style configurations extracted directly from your original variable definitions
+  const inputStyle: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '10px 11px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14 };
+  const btnGhost: React.CSSProperties = { border: `1px solid ${theme.border}`, background: '#fff', borderRadius: 10, padding: '10px 16px', cursor: 'pointer', fontSize: 14 };
+  const navBtn: React.CSSProperties = { background: '#fff', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' };
+  return (
+    <Layout
+      title="Dispatch Center Matrix"
+      actions={
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 10, padding: 4 }}>
+            <button onClick={() => changeViewMode('timeGridDay')} style={{ border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '6px 12px', background: viewMode === 'timeGridDay' ? '#fff' : 'transparent', boxShadow: viewMode === 'timeGridDay' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>Day View</button>
+            <button onClick={() => changeViewMode('timeGridWeek')} style={{ border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '6px 12px', background: viewMode === 'timeGridWeek' ? '#fff' : 'transparent', boxShadow: viewMode === 'timeGridWeek' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>Week View</button>
+            <button onClick={() => changeViewMode('resourceTimelineWeek')} style={{ border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '6px 12px', background: viewMode === 'resourceTimelineWeek' ? '#fff' : 'transparent', boxShadow: viewMode === 'resourceTimelineWeek' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>Timeline</button>
+          </div>
+          <select value={techFilter} onChange={(e) => setTechFilter(e.target.value)} style={{ padding: '9px 10px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 13 }}>
+            <option value="">All technicians</option>
+            {TECHS.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+          <button onClick={() => setEditing({ mode: 'create', date: new Date() })} style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 16px', fontWeight: 600, cursor: 'pointer' }}>+ New visit</button>
+        </div>
+      }
+    >
       {/* 1. CSR SINGLE-PAGE INTAKE SCREEN MODULE */}
       <div style={{ background: '#fff', borderRadius: 12, border: `1px solid ${theme.border}`, padding: 16, marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.01)' }}>
         <h3 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 700, color: theme.text }}>Live Customer Phone Intake</h3>
@@ -286,26 +259,14 @@ return (
             <button type="submit" style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>Send to Unscheduled Board</button>
           </div>
         </form>
-      </div>*/
+      </div>
 
       {msg && <div style={{ background: '#ecfdf5', color: '#047857', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', fontWeight: 500 }}>{msg}</div>}
       {/* Main Board Split Matrix Layout Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '20px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '20px', alignItems: 'start' }}>
         
         {/* Mount Area for the FullCalendar Instance */}
-  <div 
-    className="fc-theme-customizer" 
-    style={{ 
-      background: '#fff', 
-      borderRadius: '12px', 
-      border: `1px solid ${theme.border}`, 
-      padding: '16px', 
-      boxShadow: '0 2px 5px rgba(0,224,251,0.30)',
-      // CRITICAL FIXES FOR GRID CELL CONTAINMENT:
-      minWidth: '0', 
-      minHeight: '0',
-      overflow: 'hidden' 
-    }}>
+        <div className="fc-theme-customizer" style={{ background: '#fff', borderRadius: '12px', border: `1px solid ${theme.border}`, padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
           <FullCalendar
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimelinePlugin]}
@@ -337,9 +298,9 @@ return (
         </div>
 
         {/* Sidebar Panel Handling Unscheduled Work Backlogs */}
-        <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 5px rgba(0,224,251,0.30)' }}>
+        <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', border: `1px solid ${theme.border}`, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 700, color: theme.text }}>Unscheduled Backlog Queue ({unscheduledEvents.length})</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '550px', minHeight: '0', overflowY: 'auto', paddingRight: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '550px', overflowY: 'auto', paddingRight: '4px' }}>
             {unscheduledEvents.length === 0 ? (
               <div style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>No unassigned backlog tickets.</div>
             ) : (

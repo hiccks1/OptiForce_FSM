@@ -10,7 +10,7 @@ export default defineConfig({
 
   migrations: {
     path: 'prisma/migrations',
-    seed: 'pnpm tsx prisma/seed.ts', 
+    seed: 'pnpm tsx prisma/seed-data.ts', 
   },
 
   datasource: {
