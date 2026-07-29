@@ -11,7 +11,7 @@ generator client {
   provider        = "prisma-client-js"
   output          = "../src/generated/prisma"
   // Fixed: Removed extendedIndexes and added Prisma 7 required flags
-  previewFeatures = ["driverAdapters", "typedSql"]
+  previewFeatures = ["typedSql"]
 }
 
 enum UserRole {

@@ -16,7 +16,7 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "seed-data": "prisma db seed-data",
-    "seed": "prisma db seed"
+    "seed": "prisma seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

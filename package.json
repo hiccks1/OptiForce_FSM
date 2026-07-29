@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "./scripts/run.sh dev",
     "build": "./run.sh build",
+    "git": "tsx ./scripts/git-backup.ts",
     "seed": "tsx ./scripts/seed/seed.ts",
     "init-tenant": "./scripts/setup/init.sh",
     "clean": "pnpm turbo daemon clean && turbo clean",
@@ -16,8 +17,8 @@
     "db:migrate": "turbo run db:migrate --filter=@fsm/db",
     "seed-data": "tsx @fsm/db/seed-data.ts",
     "db:studio": "turbo run db:studio --filter=@fsm/db -- -- prisma studio",
-    "docker:up": "docker compose -f infra/docker/docker-compose.yml --env-file .env up -d",
-    "docker:down": "docker compose -f infra/docker/docker-compose.yml down",
+    "docker:up": "docker compose -f infra/docker/docker compose.yml --env-file .env up -d",
+    "docker:down": "docker compose down -f infra/docker/docker/compose.yml",
     "docker:logs": "docker compose -f infra/docker/docker-compose.yml logs -f"
   },
   "devDependencies": {

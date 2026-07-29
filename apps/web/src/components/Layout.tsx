@@ -4,6 +4,7 @@ import { theme } from '../theme';
 import { clearSession, getSession } from '../auth';
 
 const NAV = [
+  { to: '/dispatch', label: 'Dispatch', icon: '▤' },
   { to: '/dashboard', label: 'Dashboard', icon: '▦' },
   { to: '/calendar', label: 'Schedule', icon: '▤' },
   { to: '/customers', label: 'Customers', icon: '☺' },

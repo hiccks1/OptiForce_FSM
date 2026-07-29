@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import Dispatch from './pages/Dispatch';
 import Dashboard from './pages/Dashboard';
 import Calendar from './pages/Calendar';
 import Customers from './pages/Customers';
@@ -18,6 +19,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+        <Route path="/dispatch" element={<RequireAuth><Dispatch /></RequireAuth>} />
         <Route path="/calendar" element={<RequireAuth><Calendar /></RequireAuth>} />
         <Route path="/customers" element={<RequireAuth><Customers /></RequireAuth>} />
         <Route path="/jobs" element={<RequireAuth><Jobs /></RequireAuth>} />

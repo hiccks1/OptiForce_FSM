@@ -1,0 +1,53 @@
+/* apps/web/src/pages/calendar.css */  
+.fc-theme-customizer .fc {  
+  --fc-border-color: #d0d5dd;   /* v6/v7 honor this variable */  
+}  
+  
+/* Month view (dayGrid) */  
+.fc-theme-customizer .fc .fc-daygrid-day,  
+.fc-theme-customizer .fc .fc-col-header-cell {  
+  border: 1px solid #d0d5dd !important;  
+}  
+  
+/* the outer table + generic cells */  
+.fc-theme-customizer .fc .fc-scrollgrid,  
+.fc-theme-customizer .fc th,  
+.fc-theme-customizer .fc td {  
+  border: 1px solid #d0d5dd !important;  
+}  
+  
+/* Week/Day (timeGrid) */  
+.fc-theme-customizer .fc .fc-timegrid-slot,  
+.fc-theme-customizer .fc .fc-timegrid-col { border: 1px solid #d0d5dd !important; }  
+  
+/* Timeline (resource) — tech first column + time lanes */  
+.fc-theme-customizer .fc .fc-datagrid-cell,  
+.fc-theme-customizer .fc .fc-timeline-slot,  
+.fc-theme-customizer .fc .fc-timeline-lane { border: 1px 
+solid #d0d5dd !important; }
+
+/* apps/web/src/pages/calendar.css */
+
+/* --- ADD THESE SIZING RULES BELOW --- */
+
+/* 1. Forces the individual hour rows in Day/Week views to be deep */
+.fc-theme-customizer .fc .fc-timegrid-slot {
+  height: 80px !important; /* Increase this to make time slots taller */
+}
+
+/* 2. Prevents overlapping jobs from becoming tiny slivers */
+.fc-theme-customizer .fc .fc-timegrid-col-events {
+  margin: 0 4px !important;
+}
+
+/* 3. In Timeline views, ensures rows expand dynamically if multiple jobs overlap */
+.fc-theme-customizer .fc .fc-timeline-lane {
+  min-height: 100px !important; 
+}
+
+/* 4. Make job blocks look like substantial cards instead of lines */
+.fc-theme-customizer .fc .fc-event {
+  padding: 6px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}

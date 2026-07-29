@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/react/timegrid';
 import interactionPlugin from '@fullcalendar/react/interaction';
 import scrollGridPlugin from '@fullcalendar/react-scheduler/scrollgrid'; 
 // 1. Import the chosen Theme Plugin JS
+import './calendar.css'
 import formaThemePlugin from '@fullcalendar/react/themes/forma';
 
 // 2. Import the required CSS layers
@@ -21,6 +22,11 @@ const TECHS = [
   { id: 'tech_amir', name: 'Amir Kaplan' },
   { id: 'tech_dana', name: 'Dana Ruiz' },
   { id: 'tech_leo', name: 'Leo Chen' },
+  { id: 'lead_jaime', name: 'Jaime Perez' },
+  { id: 'supervisor_luis', name: 'Luis Florez' },
+  { id: 'runner_chris', name: 'Chris Johnson' },
+  { id: 'sales_advisor_sammy', name: 'Sam Murphy' },
+  { id: 'installer_manual', name: 'Manual Hernandez' },
 ];
 
 type Editing =

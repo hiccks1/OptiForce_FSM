@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, type CalendarEvent, type PortalConfig } from '../api/client';
+import logo from '/optiforce-logo-main.png'; 
 
 function toLocalInput(iso: string) {
   const d = new Date(iso);
@@ -32,11 +33,18 @@ export default function Portal() {
     <div style={{ minHeight: '100vh', background: '#f5f6fb', fontFamily: 'Inter, system-ui, sans-serif', color: '#1e2233' }}>
       <header style={{ background: `linear-gradient(120deg, ${primary}, #1e1b4b)`, color: '#fff', padding: '40px 24px' }}>
         <div style={{ maxWidth: 780, margin: '0 auto' }}>
-          <div style={{ fontSize: 13, opacity: 0.8 }}>{cfg?.companyName}</div>
+           <div style={{ display: 'flex', alignItems: 'center', marginBottom: -50 }}>
+          <img 
+            src={logo} 
+            alt="OptiForce FSM" 
+            style={{ height: 350, width: 'auto', maxWidth: '100%', objectFit: 'contain' }} 
+          />
           <h1 style={{ margin: '6px 0 6px', fontSize: 30 }}>{cfg?.title ?? 'Customer Portal'}</h1>
           <p style={{ margin: 0, opacity: 0.85, maxWidth: 520 }}>{cfg?.description}</p>
         </div>
+        </div>
       </header>
+      
 
       <main style={{ maxWidth: 780, margin: '0 auto', padding: '28px 24px' }}>
         <h2 style={{ fontSize: 18 }}>Your upcoming appointments</h2>

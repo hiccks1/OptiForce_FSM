@@ -1,6 +1,6 @@
 // apps/web/src/api/client.ts — the single API client used by every page.
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
-const COMPANY_ID = 'c792bbe1-e15a-adce-c9687dc4bff5';
+const COMPANY_ID = 'comp_demo_125';
 
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 
