@@ -24,7 +24,7 @@ export default function Layout({ title, children, actions }: { title: string; ch
       
       {/* Dynamic aside block that responds to collapse layout state modifications */}
       <aside style={{ 
-        width: isCollapsed ? 70 : 232, // Collapses from 232px to 70px
+        width: isCollapsed ? 50 : 232, // Collapses from 232px to 50px
         background: '#111528', 
         color: '#fff', 
         padding: isCollapsed ? '22px 10px' : '22px 16px', 
@@ -117,7 +117,7 @@ export default function Layout({ title, children, actions }: { title: string; ch
         </header>
         
         {/* Adjusted main viewport wrapper container block layout */}
-        <main style={{ padding: '20px 28px 12px 28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <main style={{ padding: '5px 8px 2px 8px', flex: 1, display: 'flex', flexDirection: 'column' }}>
           {children}
         </main>
       </div>

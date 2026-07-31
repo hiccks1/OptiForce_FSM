@@ -32,7 +32,7 @@ solid #d0d5dd !important; }
 
 /* 1. Forces the individual hour rows in Day/Week views to be deep */
 .fc-theme-customizer .fc .fc-timegrid-slot {
-  height: 80px !important; /* Increase this to make time slots taller */
+  height: 340px !important; /* Increase this to make time slots taller */
 }
 
 /* 2. Prevents overlapping jobs from becoming tiny slivers */
@@ -42,12 +42,12 @@ solid #d0d5dd !important; }
 
 /* 3. In Timeline views, ensures rows expand dynamically if multiple jobs overlap */
 .fc-theme-customizer .fc .fc-timeline-lane {
-  min-height: 100px !important; 
+  min-height: 640px !important; 
 }
 
 /* 4. Make job blocks look like substantial cards instead of lines */
 .fc-theme-customizer .fc .fc-event {
-  padding: 6px !important;
-  border-radius: 8px !important;
+  padding: 8px !important;
+  border-radius: 12px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
 }

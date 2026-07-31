@@ -15,17 +15,19 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
-    "seed-data": "prisma db seed-data",
-    "seed": "prisma seed"
+    "matrix": "tsx ./prisma/demo-matrix.ts",  
+    "seed-data": "tsx prisma/seed-data.ts"
   },
   "prisma": {
+    "seed-data": "tsx prisma/seed-data.ts",
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "tsx": "^4.22.4",
-    "pg": "^8.13.0"
+    "crypto": "^1.0.1",
+    "pg": "^8.13.0",
+    "tsx": "^4.22.4"
   },
   "devDependencies": {
     "@types/pg": "^8.11.11",

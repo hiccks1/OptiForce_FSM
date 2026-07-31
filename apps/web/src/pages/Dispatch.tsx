@@ -145,34 +145,34 @@ export default function Calendar(): React.JSX.Element {
 
     let indicatorStyle: React.CSSProperties = {};
     if (status === 'enroute') {
-      indicatorStyle = { borderLeft: '4px solid #f59e0b' }; 
+      indicatorStyle = { borderLeft: '1.5px solid #f59e0b' }; 
     } else if (status === 'on site') {
-      indicatorStyle = { borderLeft: '4px solid #10b981' }; 
+      indicatorStyle = { borderLeft: '1.5x solid #10b981' }; 
     } else if (status === 'scheduled') {
-      indicatorStyle = { borderLeft: '4px solid #3b82f6' }; 
+      indicatorStyle = { borderLeft: '1.5px solid #3b82f6' }; 
     }
 
     return (
       <div style={{
-        display: 'flex',
+        minHeight: '50px',
         alignItems: 'center',
-        gap: '6px',
-        padding: '2px 4px',
-        width: '100%',
-        overflow: 'hidden',
+        gap: '1.5px',
+        padding: '.5px 1px',
+        width: '1260px',
+        overflow: 'auto',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         ...indicatorStyle
       }}>
         <span style={{ flexShrink: 0, fontSize: '13px' }}>{tradeIcon}</span>
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '12px', fontWeight: 500 }}>
+        <span style={{ overflow: 'auto', textOverflow: 'ellipsis', fontSize: '12px', fontWeight: 500 }}>
           {eventInfo.event.title}
         </span>
       </div>
     );
   };
 
-  const inputStyle: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '10px 11px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14 };
+  const inputStyle: React.CSSProperties = { width: '1280px', boxSizing: 'border-box', padding: '5px 5px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14 };
   const btnGhost: React.CSSProperties = { border: `1px solid ${theme.border}`, background: '#fff', borderRadius: 10, padding: '10px 16px', cursor: 'pointer', fontSize: 14 };
   const navBtn: React.CSSProperties = { background: '#fff', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' };
 
@@ -180,7 +180,7 @@ export default function Calendar(): React.JSX.Element {
     <Layout
       title="Dispatch Center Matrix"
       actions={
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ display: 'auto', gap: 5, alignItems: 'center' }}>
           <div style={{ display: 'flex', background: '#1d4ed8', borderRadius: 10, padding: 4 }}>
             <button 
               onClick={() => changeViewMode('resourceTimelineDay')} 
@@ -212,30 +212,30 @@ export default function Calendar(): React.JSX.Element {
         </div>
       }
     >
-      {msg && <div style={{ background: '#ecfdf5', color: '#047857', padding: '12px', borderRadius: '8px', marginBottom: '14px', fontSize: '14px', fontWeight: 500 }}>{msg}</div>}
+      {msg && <div style={{ background: '#ecfdf5', color: '#047857', padding: '1.5px', borderRadius: '1.5px', marginBottom: '14px', fontSize: '14px', fontWeight: 500 }}>{msg}</div>}
       
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: '1fr minmax(280px, auto)', 
-        gap: '20px', 
+        gridTemplateColumns: '1fr minmax(50px, auto)', 
+        gap: '3px', 
         alignItems: 'stretch',
-        height: 'calc(100vh - 180px)', 
-        width: '100%',
-        overflow: 'hidden'
+        height: 'calc(100vh  - 140px)', 
+        width: '1260px',
+        overflow: 'auto'
       }}>
         
         <div 
           className="fc-theme-customizer" 
           style={{ 
             background: '#fff', 
-            borderRadius: '12px', 
+            borderRadius: '2px', 
             border: `2px solid ${theme.border}`, 
-            padding: '16px', 
+            padding: '2px', 
             boxShadow: '0 2px 5px rgba(0,224,251,0.30)',
-            height: '100%',
-            minWidth: '0', 
-          minHeight: '0',
-          display: 'flex',
+            height: '680px',
+            minWidth: '720px', 
+          minHeight: '420px',
+          display: 'auto',
           flexDirection: 'column'
         }}>
         <FullCalendar
@@ -243,7 +243,7 @@ export default function Calendar(): React.JSX.Element {
           plugins={[formaThemePlugin, dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimelinePlugin]}
           initialView={viewMode}
           schedulerLicenseKey="CC-Attribution-NonCommercial" 
-          height="100%" // Forces internal grids to stretch to the wrapper container boundaries
+          height="680px" // Forces internal grids to stretch to the wrapper container boundaries
           expandRows={true} // Forces day/week row items to expand downward dynamically
           eventContent={renderEventContent} // Renders job trade icons and indicator lines
           datesSet={handleDatesSet}
@@ -273,8 +273,8 @@ export default function Calendar(): React.JSX.Element {
             })}
             
             // CRITICAL V7 FIXES: Height overrides to stretch full-screen matching Part 2 wrapper
-            height="100%" 
-            contentHeight="100%"
+            height="720px" 
+            contentHeight="1280px"
             expandRows={true}
           />
         </div>
@@ -285,32 +285,32 @@ export default function Calendar(): React.JSX.Element {
         */}
         <div style={{ 
           background: '#fff', 
-          padding: '16px', 
-          borderRadius: '12px', 
+          padding: '0', 
+          borderRadius: '0', 
           border: `1px solid ${theme.border}`, 
-          boxShadow: '0 2px 5px rgba(0,224,251,0.30)',
-          display: 'flex',
+          boxShadow: '0 0 1px rgba(0,224,251,0.30)',
+          display: '0',
           flexDirection: 'column',
           position: 'sticky',
           top: '0',
           alignSelf: 'stretch', 
-          height: '100%',
-          overflow: 'hidden'
+          height: '5%',
+          overflow: '1px'
         }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 700, color: theme.text }}>
+          <h3 style={{ margin: '0 0 2px 0', fontSize: '14px', fontWeight: 700, color: theme.text }}>
             Unscheduled Backlog Queue ({unscheduledEvents.length})
           </h3>
           
           <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '10px', 
+            display: '5%', 
+            flexDirection: 'row', 
+            gap: '1px', 
             flexGrow: 1, // Allows the list block container to expand
             overflowY: 'auto', // Changes scrolling from hidden to scrollable when tickets build up
-            paddingRight: '4px' 
+            paddingRight: '1px' 
           }}>
             {unscheduledEvents.length === 0 ? (
-              <div style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>
+              <div style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '1px 0' }}>
                 No unassigned backlog tickets.
               </div>
             ) : (
@@ -321,14 +321,15 @@ export default function Calendar(): React.JSX.Element {
                     key={e.id}
                     onClick={() => setEditing({ mode: 'edit', event: e })}
                     style={{ 
-                      padding: '12px', 
+                      padding: '1px', 
                       background: '#f8fafc', 
-                      borderRadius: '8px', 
+                      borderRadius: '1px', 
                       border: `1px solid ${theme.border}`, 
                       cursor: 'pointer', 
                       transition: 'background 0.2s',
-                      display: 'flex',
-                      flexDirection: 'column',
+                      minHeight: '5px',
+                      minWidth: '15px',
+                      flexDirection: 'row',
                       gap: '4px'
                     }}
                     onMouseEnter={(el) => el.currentTarget.style.background = '#f1f5f9'}
@@ -340,7 +341,7 @@ export default function Calendar(): React.JSX.Element {
                         {e.customerName || 'Unknown Client'}
                       </div>
                     </div>
-                    <div style={{ color: '#64748b', fontSize: '12px', paddingLeft: '20px' }}>
+                    <div style={{ color: '#64748b', fontSize: '12px', paddingLeft: '5px' }}>
                       {e.title}
                     </div>
                   </div>
@@ -354,7 +355,7 @@ export default function Calendar(): React.JSX.Element {
       {/* Action Modal Framework Triggered by Board Grid Interactivity */}
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', width: '420px', border: `1px solid ${theme.border}`, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ background: '#fff', padding: '5px', borderRadius: '12px', width: '5px', border: `1px solid ${theme.border}`, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
             <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 700 }}>{editing.mode === 'create' ? 'Schedule Visit Window' : 'Manage Existing Visit'}</h4>
             <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px 0', lineHeight: '1.5' }}>
               {editing.mode === 'create' 

@@ -1,5 +1,10 @@
 export * from './client';
 export * from './transactions';
+export * from './src
+export * from 'prisma/seed-data.ts
+// Export everything from your multi-tenant seeder asset definition
+export * from '../../prisma/seeds/demo-matrix'; 
+
 
 // 1. Manually export the runtime enums as browser-safe plain objects
 export const UserRole = {

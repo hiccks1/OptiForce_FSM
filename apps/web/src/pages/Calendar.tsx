@@ -70,8 +70,7 @@ export default function Calendar(): React.JSX.Element {
     companies here; doing so directly violates the isolated single-tenant database boundary.
   */
   const load = useCallback(async (startIso?: string, endIso?: string) => {
-    const start = startIso || currentRange.start;
-    const end = endIso || currentRange.end;
+    const start = dIso || currentRange.end;
     if (!start || !end) return;
 
     const [calendarRes, customerRes] = await Promise.all([
@@ -299,7 +298,7 @@ return (
 
       {msg && <div style={{ background: '#ecfdf5', color: '#047857', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', fontWeight: 500 }}>{msg}</div>}
       {/* Main Board Split Matrix Layout Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '20px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 10px', gap: '20px', alignItems: 'start' }}>
         
         {/* Mount Area for the FullCalendar Instance */}
   <div 
@@ -311,9 +310,9 @@ return (
       padding: '16px', 
       boxShadow: '0 2px 5px rgba(0,224,251,0.30)',
       // CRITICAL FIXES FOR GRID CELL CONTAINMENT:
-      minWidth: '0', 
-      minHeight: '0',
-      overflow: 'hidden' 
+      minWidth: '340px', 
+      minHeight: '340px',
+      overflow: 'auto' 
     }}>
           <FullCalendar
             ref={calendarRef}
@@ -348,7 +347,7 @@ return (
         {/* Sidebar Panel Handling Unscheduled Work Backlogs */}
         <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 5px rgba(0,224,251,0.30)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 700, color: theme.text }}>Unscheduled Backlog Queue ({unscheduledEvents.length})</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '550px', minHeight: '0', overflowY: 'auto', paddingRight: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'auto', minHeight: '20', overflowY: 'auto', paddingRight: '4px' }}>
             {unscheduledEvents.length === 0 ? (
               <div style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>No unassigned backlog tickets.</div>
             ) : (
@@ -356,7 +355,7 @@ return (
                 <div 
                   key={e.id}
                   onClick={() => setEditing({ mode: 'edit', event: e })}
-                  style={{ padding: '12px', background: '#f8fafc', borderRadius: '8px', border: `1px solid ${theme.border}`, cursor: 'pointer', transition: 'background 0.2s' }}
+                  style={{ padding: '2px', background: '#f8fafc', borderRadius: '8px', border: `1px solid ${theme.border}`, cursor: 'pointer', transition: 'background 0.2s' }}
                   onMouseEnter={(el) => el.currentTarget.style.background = '#f1f5f9'}
                   onMouseLeave={(el) => el.currentTarget.style.background = '#f8fafc'}
                 >
@@ -371,8 +370,8 @@ return (
 
       {/* Action Modal Framework Triggered by Board Grid Interactivity */}
       {editing && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', width: '420px', border: `1px solid ${theme.border}`, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1000, display: 'auto', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: '#fff', padding: '2px', borderRadius: '2px', width: '960px', border: `1px solid ${theme.border}`, boxShadow: '0 5px 5x -5px rgba(0, 0, 0, 0.1)' }}>
             <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 700 }}>{editing.mode === 'create' ? 'Schedule Visit Window' : 'Manage Existing Visit'}</h4>
             <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px 0', lineHeight: '1.5' }}>
               {editing.mode === 'create' 
