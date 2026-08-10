@@ -4,7 +4,7 @@
 }  
   
 /* Month view (dayGrid) */  
-.fc-theme-customizer .fc .fc-daygrid-day,  
+.fc-theme-customizer .fc .fc-timelinegrid-day,  
 .fc-theme-customizer .fc .fc-col-header-cell {  
   border: 1px solid #d0d5dd !important;  
 }  
@@ -37,12 +37,12 @@ solid #d0d5dd !important; }
 
 /* 2. Prevents overlapping jobs from becoming tiny slivers */
 .fc-theme-customizer .fc .fc-timegrid-col-events {
-  margin: 0 4px !important;
+  margin: 1px 4px !important;
 }
 
 /* 3. In Timeline views, ensures rows expand dynamically if multiple jobs overlap */
 .fc-theme-customizer .fc .fc-timeline-lane {
-  min-height: 640px !important; 
+  min-height: 60px !important; 
 }
 
 /* 4. Make job blocks look like substantial cards instead of lines */
