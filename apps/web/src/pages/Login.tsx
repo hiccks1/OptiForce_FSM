@@ -8,20 +8,22 @@ import { theme } from '../theme';
 export default function Login() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
-  const [email, setEmail] = useState('csr@optiforce.demo');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Only answers when the API runs with DEMO_MODE=true.
   useEffect(() => {
     api.listUsers().then((r) => {
       if (r.ok) setUsers(r.data.users);
     });
   }, []);
 
-  async function signIn(withEmail: string) {
+  async function signIn(withEmail: string, withPassword?: string) {
     setLoading(true);
     setError('');
-    const r = await api.login(withEmail);
+    const r = await api.login(withEmail, withPassword);
     setLoading(false);
     if (!r.ok) {
       setError(r.error);
@@ -63,10 +65,20 @@ export default function Login() {
             style={{ width: '100%', boxSizing: 'border-box', margin: '6px 0 16px', padding: '11px 12px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14 }}
           />
 
+          <label style={{ fontSize: 12, color: theme.muted }}>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') signIn(email, password); }}
+            autoComplete="current-password"
+            style={{ width: '100%', boxSizing: 'border-box', margin: '6px 0 16px', padding: '11px 12px', borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14 }}
+          />
+
           {error && <div style={{ color: theme.danger, fontSize: 13, marginBottom: 12 }}>{error}</div>}
 
           <button
-            onClick={() => signIn(email)}
+            onClick={() => signIn(email, password)}
             disabled={loading}
             style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: theme.primary, color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
           >

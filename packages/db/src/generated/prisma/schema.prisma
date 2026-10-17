@@ -85,12 +85,14 @@ model CompanyConfig {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  email     String   @unique
-  name      String?
-  role      UserRole
+  id           String   @id @default(cuid())
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  email        String   @unique
+  name         String?
+  role         UserRole
+  // bcrypt hash; null = no password set (sign-in only allowed when DEMO_MODE=true)
+  passwordHash String?
 
   deletedAt DateTime?
   deletedBy String?

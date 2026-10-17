@@ -6,8 +6,9 @@ export const DRIFTY_FILE_CONTRACT = {
 };
 
 import app from "./app";
+import { config } from "./config/env";
 
 export function createServer() {
-  const port = process.env.PORT || 4000;
+  const port = config.port;
   app.listen(port, () => console.log("API listening on", port));
 }

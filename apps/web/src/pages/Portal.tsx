@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';  
-import { api, type CalendarEvent, type PortalConfig } from '../api/client';  
+import { api, type CalendarEvent, type PortalConfig } from '../api/client';
+import { capturePortalToken } from '../auth';  
 import logo from '/optiforce-logo-main.png';  
   
 function toLocalInput(iso: string) {  
@@ -20,6 +21,8 @@ const PORTAL_DOCS = [
 ];  
   
 export default function Portal() {  
+  // Customer portal links arrive as /portal?token=...
+  useState(() => capturePortalToken());
   const [cfg, setCfg] = useState<PortalConfig | null>(null);  
   const [visits, setVisits] = useState<CalendarEvent[]>([]);  
   const [editing, setEditing] = useState<CalendarEvent | null>(null);  
