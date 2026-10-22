@@ -88,17 +88,23 @@ model User {
   id           String   @id @default(cuid())
   companyId    String
   company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  email        String   @unique
+  // Unique per company: the same person can be a customer of several tenants.
+  email        String
   name         String?
   role         UserRole
-  // bcrypt hash; null = no password set (sign-in only allowed when DEMO_MODE=true)
+  // bcrypt hash; null = no password set (staff: DEMO_MODE-only sign-in; customers: invite pending)
   passwordHash String?
+  // CUSTOMER users only: the customer id embedded in Job.data.customer.id
+  customerId   String?
 
   deletedAt DateTime?
   deletedBy String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
+  @@unique([companyId, email])
+  @@index([email])
+  @@index([companyId, customerId])
   @@index([companyId, deletedAt])
   @@index([companyId, role])
   @@map("users")

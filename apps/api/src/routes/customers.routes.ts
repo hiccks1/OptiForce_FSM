@@ -4,11 +4,12 @@ export const DRIFTY_FILE_CONTRACT = {
 };
 
 import { Router } from "express";
-import { createCustomer, listCustomers } from "../controllers/customers";
+import { createCustomer, listCustomers, resendCustomerInvite } from "../controllers/customers";
 
 const router = Router();
 
 router.get("/", listCustomers);
 router.post("/", createCustomer);
+router.post("/:customerId/invite", resendCustomerInvite);
 
 export default router;

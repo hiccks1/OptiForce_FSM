@@ -1,5 +1,5 @@
 // apps/web/src/api/client.ts — the single API client used by every page.
-import { clearSession, getPortalToken, getSession } from '../auth';  
+import { clearCustomerSession, clearSession, getCustomerSession, getPortalToken, getSession, lastPortalCompany, type CustomerSession } from '../auth';  
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
 // Demo only: lets the login page list demo accounts when the API runs with DEMO_MODE=true.
 const DEMO_COMPANY_ID: string | undefined = import.meta.env.VITE_DEMO_COMPANY_ID || undefined;
@@ -28,6 +28,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T
     if (res.status === 401 && token && token === getSession()?.token) {
       clearSession();
       if (window.location.pathname !== '/') window.location.assign('/');
+    }
+    if (res.status === 401 && token && token === getCustomerSession()?.token) {
+      clearCustomerSession();
+      const company = lastPortalCompany();
+      window.location.assign(`/portal/login${company ? `?company=${encodeURIComponent(company)}` : ''}`);
     }
     if (!res.ok) {
       return { ok: false, status: res.status, error: (json && (json.error || json.message)) || `Request failed (${res.status})` };
@@ -61,6 +66,13 @@ export type Customer = {
   address?: Address;  
   jobCount: number;  
   upcomingVisits: number;  
+  portalStatus: 'active' | 'invited' | null;
+};
+
+export type InviteResult = {
+  status: 'sent' | 'not_sent' | 'already_active' | 'email_in_use' | 'invalid_email';
+  reason?: string;
+  url?: string;
 };  
   
 export type JobSummary = {  
@@ -162,7 +174,23 @@ export const api = {
     return request<{ customers: Customer[] }>(`/customers`);  
   },  
   createCustomer(input: { name: string; email?: string; phone?: string; serviceType?: string; address?: Address }) {  
-    return request<{ id: string; name: string }>(`/customers`, { method: 'POST', body: JSON.stringify(input) });  
+    return request<{ id: string; name: string; invite: InviteResult | null }>(`/customers`, { method: 'POST', body: JSON.stringify(input) });  
+  },
+  resendCustomerInvite(customerId: string) {
+    return request<{ invite: InviteResult }>(`/customers/${encodeURIComponent(customerId)}/invite`, { method: 'POST' });
+  },
+
+  inviteInfo(token: string) {
+    return request<{ email: string; name: string | null; companyName: string }>(`/auth/invite?token=${encodeURIComponent(token)}`);
+  },
+  acceptInvite(token: string, password: string) {
+    return request<CustomerSession>(`/auth/invite/accept`, { method: 'POST', body: JSON.stringify({ token, password }) });
+  },
+  customerLogin(company: string, email: string, password: string) {
+    return request<CustomerSession>(`/auth/customer/login`, { method: 'POST', body: JSON.stringify({ company, email, password }) });
+  },
+  portalMe() {
+    return request<{ user: { id: string; email: string; name: string | null } | null }>(`/portal/me`);
   },  
   
   listDocuments() {  

@@ -4251,6 +4251,7 @@ export namespace Prisma {
     name: string | null
     role: $Enums.UserRole | null
     passwordHash: string | null
+    customerId: string | null
     deletedAt: Date | null
     deletedBy: string | null
     createdAt: Date | null
@@ -4264,6 +4265,7 @@ export namespace Prisma {
     name: string | null
     role: $Enums.UserRole | null
     passwordHash: string | null
+    customerId: string | null
     deletedAt: Date | null
     deletedBy: string | null
     createdAt: Date | null
@@ -4277,6 +4279,7 @@ export namespace Prisma {
     name: number
     role: number
     passwordHash: number
+    customerId: number
     deletedAt: number
     deletedBy: number
     createdAt: number
@@ -4292,6 +4295,7 @@ export namespace Prisma {
     name?: true
     role?: true
     passwordHash?: true
+    customerId?: true
     deletedAt?: true
     deletedBy?: true
     createdAt?: true
@@ -4305,6 +4309,7 @@ export namespace Prisma {
     name?: true
     role?: true
     passwordHash?: true
+    customerId?: true
     deletedAt?: true
     deletedBy?: true
     createdAt?: true
@@ -4318,6 +4323,7 @@ export namespace Prisma {
     name?: true
     role?: true
     passwordHash?: true
+    customerId?: true
     deletedAt?: true
     deletedBy?: true
     createdAt?: true
@@ -4404,6 +4410,7 @@ export namespace Prisma {
     name: string | null
     role: $Enums.UserRole
     passwordHash: string | null
+    customerId: string | null
     deletedAt: Date | null
     deletedBy: string | null
     createdAt: Date
@@ -4434,6 +4441,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     passwordHash?: boolean
+    customerId?: boolean
     deletedAt?: boolean
     deletedBy?: boolean
     createdAt?: boolean
@@ -4448,6 +4456,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     passwordHash?: boolean
+    customerId?: boolean
     deletedAt?: boolean
     deletedBy?: boolean
     createdAt?: boolean
@@ -4462,6 +4471,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     passwordHash?: boolean
+    customerId?: boolean
     deletedAt?: boolean
     deletedBy?: boolean
     createdAt?: boolean
@@ -4476,13 +4486,14 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     passwordHash?: boolean
+    customerId?: boolean
     deletedAt?: boolean
     deletedBy?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "email" | "name" | "role" | "passwordHash" | "deletedAt" | "deletedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "email" | "name" | "role" | "passwordHash" | "customerId" | "deletedAt" | "deletedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -4505,6 +4516,7 @@ export namespace Prisma {
       name: string | null
       role: $Enums.UserRole
       passwordHash: string | null
+      customerId: string | null
       deletedAt: Date | null
       deletedBy: string | null
       createdAt: Date
@@ -4939,6 +4951,7 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'UserRole'>
     readonly passwordHash: FieldRef<"User", 'String'>
+    readonly customerId: FieldRef<"User", 'String'>
     readonly deletedAt: FieldRef<"User", 'DateTime'>
     readonly deletedBy: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
@@ -13533,6 +13546,7 @@ export namespace Prisma {
     name: 'name',
     role: 'role',
     passwordHash: 'passwordHash',
+    customerId: 'customerId',
     deletedAt: 'deletedAt',
     deletedBy: 'deletedBy',
     createdAt: 'createdAt',
@@ -14020,6 +14034,7 @@ export namespace Prisma {
     name?: StringNullableFilter<"User"> | string | null
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
     passwordHash?: StringNullableFilter<"User"> | string | null
+    customerId?: StringNullableFilter<"User"> | string | null
     deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     deletedBy?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -14034,6 +14049,7 @@ export namespace Prisma {
     name?: SortOrderInput | SortOrder
     role?: SortOrder
     passwordHash?: SortOrderInput | SortOrder
+    customerId?: SortOrderInput | SortOrder
     deletedAt?: SortOrderInput | SortOrder
     deletedBy?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -14043,20 +14059,22 @@ export namespace Prisma {
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    email?: string
+    companyId_email?: UserCompanyIdEmailCompoundUniqueInput
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     companyId?: StringFilter<"User"> | string
+    email?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
     passwordHash?: StringNullableFilter<"User"> | string | null
+    customerId?: StringNullableFilter<"User"> | string | null
     deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     deletedBy?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
-  }, "id" | "email">
+  }, "id" | "companyId_email">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
@@ -14065,6 +14083,7 @@ export namespace Prisma {
     name?: SortOrderInput | SortOrder
     role?: SortOrder
     passwordHash?: SortOrderInput | SortOrder
+    customerId?: SortOrderInput | SortOrder
     deletedAt?: SortOrderInput | SortOrder
     deletedBy?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -14084,6 +14103,7 @@ export namespace Prisma {
     name?: StringNullableWithAggregatesFilter<"User"> | string | null
     role?: EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
     passwordHash?: StringNullableWithAggregatesFilter<"User"> | string | null
+    customerId?: StringNullableWithAggregatesFilter<"User"> | string | null
     deletedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     deletedBy?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -14955,6 +14975,7 @@ export namespace Prisma {
     name?: string | null
     role: $Enums.UserRole
     passwordHash?: string | null
+    customerId?: string | null
     deletedAt?: Date | string | null
     deletedBy?: string | null
     createdAt?: Date | string
@@ -14969,6 +14990,7 @@ export namespace Prisma {
     name?: string | null
     role: $Enums.UserRole
     passwordHash?: string | null
+    customerId?: string | null
     deletedAt?: Date | string | null
     deletedBy?: string | null
     createdAt?: Date | string
@@ -14981,6 +15003,7 @@ export namespace Prisma {
     name?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deletedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14995,6 +15018,7 @@ export namespace Prisma {
     name?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deletedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15008,6 +15032,7 @@ export namespace Prisma {
     name?: string | null
     role: $Enums.UserRole
     passwordHash?: string | null
+    customerId?: string | null
     deletedAt?: Date | string | null
     deletedBy?: string | null
     createdAt?: Date | string
@@ -15020,6 +15045,7 @@ export namespace Prisma {
     name?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deletedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15033,6 +15059,7 @@ export namespace Prisma {
     name?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deletedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16212,6 +16239,11 @@ export namespace Prisma {
     not?: NestedEnumUserRoleFilter<$PrismaModel> | $Enums.UserRole
   }
 
+  export type UserCompanyIdEmailCompoundUniqueInput = {
+    companyId: string
+    email: string
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     companyId?: SortOrder
@@ -16219,6 +16251,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     passwordHash?: SortOrder
+    customerId?: SortOrder
     deletedAt?: SortOrder
     deletedBy?: SortOrder
     createdAt?: SortOrder
@@ -16232,6 +16265,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     passwordHash?: SortOrder
+    customerId?: SortOrder
     deletedAt?: SortOrder
     deletedBy?: SortOrder
     createdAt?: SortOrder
@@ -16245,6 +16279,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     passwordHash?: SortOrder
+    customerId?: SortOrder
     deletedAt?: SortOrder
     deletedBy?: SortOrder
     createdAt?: SortOrder
@@ -17521,6 +17556,7 @@ export namespace Prisma {
     name?: string | null
     role: $Enums.UserRole
     passwordHash?: string | null
+    customerId?: string | null
     deletedAt?: Date | string | null
     deletedBy?: string | null
     createdAt?: Date | string
@@ -17533,6 +17569,7 @@ export namespace Prisma {
     name?: string | null
     role: $Enums.UserRole
     passwordHash?: string | null
+    customerId?: string | null
     deletedAt?: Date | string | null
     deletedBy?: string | null
     createdAt?: Date | string
@@ -17819,6 +17856,7 @@ export namespace Prisma {
     name?: StringNullableFilter<"User"> | string | null
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
     passwordHash?: StringNullableFilter<"User"> | string | null
+    customerId?: StringNullableFilter<"User"> | string | null
     deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     deletedBy?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -18603,6 +18641,7 @@ export namespace Prisma {
     name?: string | null
     role: $Enums.UserRole
     passwordHash?: string | null
+    customerId?: string | null
     deletedAt?: Date | string | null
     deletedBy?: string | null
     createdAt?: Date | string
@@ -18707,6 +18746,7 @@ export namespace Prisma {
     name?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deletedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18719,6 +18759,7 @@ export namespace Prisma {
     name?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deletedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18731,6 +18772,7 @@ export namespace Prisma {
     name?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deletedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

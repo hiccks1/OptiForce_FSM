@@ -1,13 +1,37 @@
 // apps/api/src/controllers/portal.ts
 import type { Request, Response } from 'express';
-import { prisma } from '@fsm/db';
+import { prisma, type Prisma } from '@fsm/db';
 import { asJobData } from '../domain/jobData';
 import { config } from '../config/env';
 import { signPortalToken } from '../auth/tokens';
 import { cancelVisit, updateVisit } from './jobs';
 
-function canTouchJob(req: Request, jobId: string): boolean {
-  return req.ctx.principal !== 'portal' || req.ctx.portalJobId === jobId;
+// Jobs a portal principal may see: one job (link token) or all of a customer's jobs.
+function portalJobScope(req: Request): Prisma.JobWhereInput {
+  if (req.ctx.portalJobId) return { id: req.ctx.portalJobId };
+  if (req.ctx.portalCustomerId) return { data: { path: ['customer', 'id'], equals: req.ctx.portalCustomerId } };
+  return {};
+}
+
+async function canTouchJob(req: Request, jobId: string): Promise<boolean> {
+  if (req.ctx.principal !== 'portal') return true;
+  if (req.ctx.portalJobId) return req.ctx.portalJobId === jobId;
+  if (!req.ctx.portalCustomerId) return false;
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, companyId: req.ctx.companyId, deletedAt: null, ...portalJobScope(req) },
+    select: { id: true },
+  });
+  return !!job;
+}
+
+// GET /portal/me — the signed-in portal customer (null for job links / staff preview).
+export async function portalMe(req: Request, res: Response) {
+  if (!req.ctx.portalCustomerId) return res.json({ user: null });
+  const user = await prisma.user.findFirst({
+    where: { id: req.ctx.actorId, companyId: req.ctx.companyId, deletedAt: null },
+    select: { id: true, email: true, name: true },
+  });
+  return res.json({ user });
 }
 
 // GET /portal/config — returns the tenant's customer-portal configuration.
@@ -47,7 +71,7 @@ export async function portalUpcoming(req: Request, res: Response) {
       where: {
         companyId: req.ctx.companyId,
         deletedAt: null,
-        ...(req.ctx.portalJobId ? { id: req.ctx.portalJobId } : {}),
+        ...portalJobScope(req),
       },
     });
 
@@ -103,7 +127,7 @@ export async function createPortalLink(req: Request, res: Response) {
 
 // PATCH /portal/jobs/:jobId/visits/:visitId — customer reschedules (start/end only).
 export async function portalRescheduleVisit(req: Request, res: Response) {
-  if (!canTouchJob(req, req.params.jobId!)) return res.status(404).json({ error: 'Job not found' });
+  if (!(await canTouchJob(req, req.params.jobId!))) return res.status(404).json({ error: 'Job not found' });
   const body = (req.body ?? {}) as Record<string, unknown>;
   req.body = { start: body.start, end: body.end };
   return updateVisit(req, res);
@@ -111,6 +135,6 @@ export async function portalRescheduleVisit(req: Request, res: Response) {
 
 // DELETE /portal/jobs/:jobId/visits/:visitId — customer cancels a visit.
 export async function portalCancelVisit(req: Request, res: Response) {
-  if (!canTouchJob(req, req.params.jobId!)) return res.status(404).json({ error: 'Job not found' });
+  if (!(await canTouchJob(req, req.params.jobId!))) return res.status(404).json({ error: 'Job not found' });
   return cancelVisit(req, res);
 }

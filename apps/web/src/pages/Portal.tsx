@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';  
+import { Navigate } from 'react-router-dom';
 import { api, type CalendarEvent, type PortalConfig } from '../api/client';
-import { capturePortalToken } from '../auth';  
+import { capturePortalToken, clearCustomerSession, getCustomerSession, getSession, lastPortalCompany } from '../auth';  
 import logo from '/optiforce-logo-main.png';  
   
 function toLocalInput(iso: string) {  
@@ -22,7 +23,8 @@ const PORTAL_DOCS = [
   
 export default function Portal() {  
   // Customer portal links arrive as /portal?token=...
-  useState(() => capturePortalToken());
+  const [linkToken] = useState(() => capturePortalToken());
+  const [customer] = useState(() => getCustomerSession());
   const [cfg, setCfg] = useState<PortalConfig | null>(null);  
   const [visits, setVisits] = useState<CalendarEvent[]>([]);  
   const [editing, setEditing] = useState<CalendarEvent | null>(null);  
@@ -40,11 +42,29 @@ export default function Portal() {
   }, [load]);  
   
   const primary = cfg?.primaryColor ?? '#4f46e5';  
+
+  function signOut() {
+    const company = lastPortalCompany();
+    clearCustomerSession();
+    window.location.assign(`/portal/login${company ? `?company=${encodeURIComponent(company)}` : ''}`);
+  }
+
+  // No job link, customer session, or staff preview session: send to customer sign-in.
+  if (!linkToken && !customer && !getSession()) {
+    const company = lastPortalCompany();
+    return <Navigate to={`/portal/login${company ? `?company=${encodeURIComponent(company)}` : ''}`} replace />;
+  }
   
   return (  
     <div style={{ minHeight: '100vh', background: '#f5f6fb', fontFamily: 'Inter, system-ui, sans-serif', color: '#1e2233' }}>  
       <header style={{ background: `linear-gradient(120deg, ${primary}, #1e1b4b)`, color: '#fff', padding: '40px 24px' }}>  
         <div style={{ maxWidth: 780, margin: '0 auto' }}>  
+          {customer && !linkToken && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12, fontSize: 14 }}>
+              <span style={{ opacity: 0.85 }}>Signed in as {customer.user.name ?? customer.user.email}</span>
+              <button onClick={signOut} style={{ border: '1px solid rgba(255,255,255,0.6)', background: 'transparent', color: '#fff', borderRadius: 8, padding: '6px 12px', cursor: 'pointer' }}>Sign out</button>
+            </div>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: -50 }}>  
             <img  
               src={logo}  

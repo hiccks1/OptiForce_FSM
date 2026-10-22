@@ -39,6 +39,11 @@ const EnvSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('12h'),
   PORTAL_LINK_TTL: z.string().default('7d'),
   PORTAL_BASE_URL: z.string().url().default('http://localhost:5173'),
+  PORTAL_INVITE_TTL: z.string().default('7d'),
+  PORTAL_SESSION_TTL: z.string().default('30d'),
+  // Customer portal invite email. Empty SMTP_URL = log invite links instead of sending.
+  SMTP_URL: z.string().optional(),
+  MAIL_FROM: z.string().default('OptiForce <no-reply@optiforce.local>'),
   // Comma-separated list of allowed browser origins.
   CORS_ORIGINS: z.string().optional(),
 });
@@ -76,6 +81,10 @@ function loadConfig() {
     jwtExpiresIn: env.JWT_EXPIRES_IN,
     portalLinkTtl: env.PORTAL_LINK_TTL,
     portalBaseUrl: env.PORTAL_BASE_URL.replace(/\/$/, ''),
+    portalInviteTtl: env.PORTAL_INVITE_TTL,
+    portalSessionTtl: env.PORTAL_SESSION_TTL,
+    smtpUrl: env.SMTP_URL?.trim() || null,
+    mailFrom: env.MAIL_FROM,
     corsOrigins,
   };
 }
