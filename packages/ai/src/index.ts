@@ -7,6 +7,7 @@ export * from './retrievers';
 export * from './tools';
 export * from './prompts';
 export * from './memory';
+export * from './llm';
 
 
 export const DRIFTY_FILE_CONTRACT = {
