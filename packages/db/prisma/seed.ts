@@ -117,7 +117,7 @@ async function seedCompany(co: (typeof COMPANIES)[number], index: number) {
   for (const o of office) {  
     const email = `${o.suffix}@${subdomain}.demo`;  
     await prisma.user.upsert({  
-      where: { email },  
+      where: { companyId_email: { companyId, email } },  
       update: { name: `${o.label} — ${name}`, role: o.role, companyId, passwordHash: SEED_PASSWORD_HASH },  
       create: { id: `user_${companyId}_${o.suffix}`, email, name: `${o.label} — ${name}`, role: o.role, companyId, passwordHash: SEED_PASSWORD_HASH },  
     });  
@@ -129,7 +129,7 @@ async function seedCompany(co: (typeof COMPANIES)[number], index: number) {
     const tid = `user_${companyId}_tech${t}`;  
     const email = `tech${t}@${subdomain}.demo`;  
     await prisma.user.upsert({  
-      where: { email },  
+      where: { companyId_email: { companyId, email } },  
       update: { name: tName, role: 'FIELD', companyId, passwordHash: SEED_PASSWORD_HASH },  
       create: { id: tid, email, name: tName, role: 'FIELD', companyId, passwordHash: SEED_PASSWORD_HASH },  
     });  

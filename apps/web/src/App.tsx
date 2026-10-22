@@ -7,6 +7,8 @@ import Customers from './pages/Customers';
 import Jobs from './pages/Jobs';
 import Documents from './pages/Documents';
 import Portal from './pages/Portal';
+import PortalWelcome from './pages/PortalWelcome';
+import PortalLogin from './pages/PortalLogin';
 import { getSession } from './auth';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -25,6 +27,8 @@ export default function App() {
         <Route path="/jobs" element={<RequireAuth><Jobs /></RequireAuth>} />
         <Route path="/documents" element={<RequireAuth><Documents /></RequireAuth>} />
         <Route path="/portal" element={<Portal />} />
+        <Route path="/portal/welcome" element={<PortalWelcome />} />
+        <Route path="/portal/login" element={<PortalLogin />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

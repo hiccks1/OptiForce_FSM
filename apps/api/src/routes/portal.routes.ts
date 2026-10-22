@@ -5,6 +5,7 @@ import {
   createPortalLink,
   portalRescheduleVisit,
   portalCancelVisit,
+  portalMe,
 } from '../controllers/portal';
 import { requirePortalOrStaff, requireStaff } from '../middleware/requireRole';
 
@@ -14,6 +15,7 @@ router.post('/links', requireStaff(['OWNER', 'ADMIN', 'MANAGER', 'CSR', 'FIELD']
 
 router.use(requirePortalOrStaff);
 router.get('/config', portalConfig);
+router.get('/me', portalMe);
 router.get('/upcoming', portalUpcoming);
 router.patch('/jobs/:jobId/visits/:visitId', portalRescheduleVisit);
 router.delete('/jobs/:jobId/visits/:visitId', portalCancelVisit);

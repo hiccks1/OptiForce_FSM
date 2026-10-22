@@ -15,8 +15,10 @@ export type RequestContext = {
   actorType: 'HUMAN' | 'SYSTEM' | 'AI';
   principal: 'staff' | 'portal' | 'demo';
   role: UserRole | null;
-  // Set for portal principals: the only job this request may touch.
+  // Set for job-link portal principals: the only job this request may touch.
   portalJobId?: string;
+  // Set for signed-in portal customers: only jobs whose data.customer.id matches.
+  portalCustomerId?: string;
 };
 
 declare global {
@@ -70,6 +72,32 @@ export async function attachCtx(req: Request, res: Response, next: NextFunction)
           return;
         }
         req.ctx = { companyId: user.companyId, requestId, actorId: user.id, actorType: 'HUMAN', principal: 'staff', role: user.role };
+      } else if (claims.typ === 'customer') {
+        const user = await prisma.user.findFirst({
+          where: {
+            id: claims.sub,
+            companyId: claims.cid,
+            role: 'CUSTOMER',
+            customerId: claims.custId,
+            passwordHash: { not: null },
+            deletedAt: null,
+            company: { deletedAt: null },
+          },
+          select: { id: true },
+        });
+        if (!user) {
+          res.status(401).json({ error: 'User no longer active' });
+          return;
+        }
+        req.ctx = {
+          companyId: claims.cid,
+          requestId,
+          actorId: user.id,
+          actorType: 'HUMAN',
+          principal: 'portal',
+          role: 'CUSTOMER',
+          portalCustomerId: claims.custId,
+        };
       } else {
         req.ctx = {
           companyId: claims.cid,
