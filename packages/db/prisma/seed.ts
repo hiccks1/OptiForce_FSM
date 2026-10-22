@@ -2,7 +2,8 @@
 /* eslint-disable no-console */  
 import { config } from 'dotenv';  
 import { resolve } from 'node:path';  
-import { Pool } from 'pg';  
+import { Pool } from 'pg';
+import bcrypt from 'bcryptjs';  
   
 import { PrismaPg } from '@prisma/adapter-pg';  
 import { PrismaClient } from '../src/generated/prisma/client';  
@@ -12,6 +13,12 @@ const connectionString =
 const pool = new Pool({ connectionString });  
 const adapter = new PrismaPg(pool);  
 const prisma = new PrismaClient({ adapter });
+
+// Optional: give every seeded user this password. Without it, seeded users have
+// no password and can only sign in when the API runs with DEMO_MODE=true.
+const SEED_PASSWORD_HASH = process.env.SEED_USER_PASSWORD
+  ? bcrypt.hashSync(process.env.SEED_USER_PASSWORD, 10)
+  : null;
 
 // ---------- helpers ----------  
 function at(dayOffset: number, hour: number, minutes = 0): string {  
@@ -111,8 +118,8 @@ async function seedCompany(co: (typeof COMPANIES)[number], index: number) {
     const email = `${o.suffix}@${subdomain}.demo`;  
     await prisma.user.upsert({  
       where: { email },  
-      update: { name: `${o.label} — ${name}`, role: o.role, companyId },  
-      create: { id: `user_${companyId}_${o.suffix}`, email, name: `${o.label} — ${name}`, role: o.role, companyId },  
+      update: { name: `${o.label} — ${name}`, role: o.role, companyId, passwordHash: SEED_PASSWORD_HASH },  
+      create: { id: `user_${companyId}_${o.suffix}`, email, name: `${o.label} — ${name}`, role: o.role, companyId, passwordHash: SEED_PASSWORD_HASH },  
     });  
   }  
   
@@ -123,8 +130,8 @@ async function seedCompany(co: (typeof COMPANIES)[number], index: number) {
     const email = `tech${t}@${subdomain}.demo`;  
     await prisma.user.upsert({  
       where: { email },  
-      update: { name: tName, role: 'FIELD', companyId },  
-      create: { id: tid, email, name: tName, role: 'FIELD', companyId },  
+      update: { name: tName, role: 'FIELD', companyId, passwordHash: SEED_PASSWORD_HASH },  
+      create: { id: tid, email, name: tName, role: 'FIELD', companyId, passwordHash: SEED_PASSWORD_HASH },  
     });  
     techs.push({ id: tid, name: tName });  
   }  

@@ -15,7 +15,7 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
-    "matrix": "tsx ./prisma/demo-matrix.ts",  
+    "matrix": "tsx ./prisma/demo-matrix.ts",
     "seed": "tsx prisma/seed.ts"
   },
   "prisma": {
@@ -30,7 +30,9 @@
     "tsx": "^4.22.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/pg": "^8.11.11",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.3.1",
     "prisma": "^7.8.0",
     "tsx": "^4.23.0",
